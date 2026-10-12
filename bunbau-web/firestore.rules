@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Everything for a user lives under users/{userId}; only that authenticated user may access it.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // User account holdings & balances
+      match /accounts/{accountId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Upload audit trail (History > Uploads)
+      match /imports/{importId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Snapshots are IMMUTABLE: create / read / delete only, never update.
+      match /snapshots/{snapshotId} {
+        allow read, create, delete: if request.auth != null && request.auth.uid == userId;
+        allow update: if false;
+      }
+
+      // Learned extraction rules
+      match /extractionRules/{ruleId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // AI Strategist chat message history
+      match /strategyMessages/{messageId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // AI Strategist versioned reports
+      match /strategyReports/{reportId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // AI Strategist long-term memory document
+      match /strategyMemory/{memoryId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Catch-all safety for any nested subcollections under users/{userId}
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Legacy collection from v1.x (read/delete only for cleanup)
+    match /portfolios/{userId} {
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+

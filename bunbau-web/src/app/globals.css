@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-primary-mint: #10B981;
+  --color-primary-amber: #F59E0B;
+  --color-secondary-violet: #8B5CF6;
+  --color-secondary-coral: #F43F5E;
+  --color-neutral-slate: #0F172A;
+}
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #0F172A;
+  }
+  .dark {
+    --background: #0F172A;
+    --foreground: #ffffff;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}

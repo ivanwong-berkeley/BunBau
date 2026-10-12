@@ -1,0 +1,18 @@
+Dockerfile
+.dockerignore
+docker-compose.yml
+node_modules
+npm-debug.log
+README.md
+.next
+.git
+.DS_Store
+tsconfig.tsbuildinfo
+# never bake secrets into image layers
+.env
+.env.*
+# legacy one-off patch scripts
+fix_*.js
+update_*.js
+append_*.js
+fix_syntax.sh

@@ -1,0 +1,15 @@
+﻿Account number,Account name,Symbol,Description,Quantity,Last price,Last price change,Current value,Today's gain/loss dollar,Today's gain/loss percent,Total gain/loss dollar,Total gain/loss percent,Percent of account,Cost basis total,Average cost basis,Type
+652716847,BrokerageLink,FDRXX**,HELD IN MONEY MARKET,,,,$2354.37,,,,,0.39%,,,Cash,
+652716847,BrokerageLink,06187RB84,BANK OF EAST ASIA LTD (THE) NEW YORK 3.85000% 10/13/2026 CD BRANCH,248000,$99.994,$0.00,$247985.12,$0.00,0.00%,-$14.88,-0.01%,41.31%,$248000.00,--,Cash,
+652716847,BrokerageLink,60685BXE6,MIZRAHI TEFAHOT BK LTD LOS ANG CD 4.00000% 11/12/2026,52000,$99.984,+$0.001,$51991.68,$0.00,0.00%,-$8.32,-0.02%,8.66%,$52000.00,--,Cash,
+652716847,BrokerageLink,83407DDE3,SOFI BANK NATIONAL ASSOCIATION CD 4.00000% 01/15/2027,240000,$99.943,$0.00,$239863.20,$0.00,0.00%,-$136.80,-0.06%,39.96%,$240000.00,--,Cash,
+652716847,BrokerageLink,872814DG0,TS BK TREYNOR IOWA CD 3.90000% 11/20/2026,20000,$99.969,+$0.001,$19993.80,$0.00,0.00%,-$6.20,-0.04%,3.33%,$20000.00,--,Cash,
+652716847,BrokerageLink,FBTC,FIDELITY WISE ORIGIN BITCOIN FUND,174.81,$72.50,-$1.98,$12673.72,-$346.13,-2.66%,+$416.38,+3.39%,2.11%,$12257.34,$70.12,Cash,
+652716847,BrokerageLink,GLDM,WORLD GOLD TR SPDR GLD MINIS,284.547,$81.11,-$1.34,$23079.60,-$381.30,-1.63%,+$584.86,+2.60%,3.84%,$22494.74,$79.05,Cash,
+652716847,BrokerageLink,NVDA,NVIDIA CORPORATION COM,10.028,$237.47,-$1.77,$2381.34,-$17.75,-0.74%,+$1396.34,+141.76%,0.40%,$985.00,$98.22,Cash,
+
+"The data and information in this spreadsheet is provided to you solely for your use and is not for distribution. The spreadsheet is provided for informational purposes only, and is not intended to provide advice, nor should it be construed as an offer to sell, a solicitation of an offer to buy or a recommendation for any security by Fidelity or any third party. Data and information shown is based on information known to Fidelity as of the date it was exported and is subject to change. It should not be used in place of your account statements or trade confirmations and is not intended for tax reporting purposes. For more information on the data included in this spreadsheet, including any limitations thereof, go to Fidelity.com."
+
+"Brokerage services are provided by Fidelity Brokerage Services LLC (FBS), 900 Salem Street, Smithfield, RI 02917. Custody and other services provided by National Financial Services LLC (NFS). Both are Fidelity Investment companies and members SIPC, NYSE. Neither FBS nor NFS offer crypto as a direct investment nor provide trading or custody services for such assets."
+
+"Date downloaded Oct-07-2026 8:53 p.m ET"

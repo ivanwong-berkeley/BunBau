@@ -1,0 +1,68 @@
+# =========================
+# Operating System Files
+# =========================
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows (Just in case you collaborate with someone on PC)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# Security / API Keys
+# =========================
+.env
+.env.local
+.env.*
+*.pem
+
+# =========================
+# Python / FastAPI Backend
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+.venv/
+env/
+
+# =========================
+# Node.js / React Frontend
+# =========================
+node_modules/
+build/
+dist/
+.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# =========================
+# IDEs and Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Ignore specific directories repository-wide
+# =========================
+Implementation_Test_Plans/
+Uploades/
+Claude_Key/

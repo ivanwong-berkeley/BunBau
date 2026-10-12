@@ -1,0 +1,24 @@
+﻿Account number,Account name,Symbol,Description,Quantity,Last price,Last price change,Current value,Today's gain/loss dollar,Today's gain/loss percent,Total gain/loss dollar,Total gain/loss percent,Percent of account,Cost basis total,Average cost basis,Type
+X24336238,Individual - TOD,FCASH**,HELD IN FCASH,,,,$100331.74,,,,,14.78%,,,Cash,
+X24336238,Individual - TOD, -AAPL261023P310,AAPL OCT 23 2026 $310 PUT,-1,$0.60,-$0.10,-$60.00,+$10.00,+14.28%,+$97.34,+61.86%,-0.01%,$157.34,$1.57,Cash,
+X24336238,Individual - TOD, -AVGO261120P330,AVGO NOV 20 2026 $330 PUT,-1,$3.95,$0.00,-$395.00,+$14.34,+3.50%,+$14.34,+3.50%,-0.06%,$409.34,$4.09,Cash,
+X24336238,Individual - TOD,FBTC,FIDELITY WISE ORIGIN BITCOIN FUND,79.978,$72.50,-$1.98,$5798.40,-$158.36,-2.66%,+$1325.89,+29.64%,0.85%,$4472.51,$55.92,Cash,
+X24336238,Individual - TOD,FCNTX,FIDELITY CONTRAFUND,266.088,$28.09,-$0.12,$7474.41,-$31.94,-0.43%,+$1545.22,+26.06%,1.10%,$5929.19,$22.28,Cash,
+X24336238,Individual - TOD,GLDM,WORLD GOLD TR SPDR GLD MINIS,20.857,$81.11,-$1.34,$1691.71,-$27.95,-1.63%,+$586.46,+53.06%,0.25%,$1105.25,$52.99,Cash,
+X24336238,Individual - TOD, -MSFT261023P475,MSFT OCT 23 2026 $475 PUT,-1,$0.55,-$0.10,-$55.00,+$10.00,+15.38%,+$234.34,+80.99%,-0.01%,$289.34,$2.89,Cash,
+X24336238,Individual - TOD,NVDA,NVIDIA CORPORATION COM,18.734,$237.47,-$1.77,$4448.76,-$33.16,-0.74%,+$2389.77,+116.06%,0.66%,$2058.99,$109.91,Cash,
+X24336238,Individual - TOD, -NVDA261106P200,NVDA NOV 06 2026 $200 PUT,-1,$0.58,$0.00,-$58.00,$0.00,0.00%,+$156.34,+72.94%,-0.01%,$214.34,$2.14,Cash,
+X24336238,Individual - TOD,ORCL,ORACLE CORP,3000.138,$143.56,-$1.21,$430699.81,-$3630.17,-0.84%,+$268428.51,+165.41%,63.44%,$162271.30,$54.09,Cash,
+X24336238,Individual - TOD,SGOV,ISHARES TR 0-3 MNTH TREASRY,446,$100.47,+$0.01,$44809.62,+$4.46,0.00%,-$84.81,-0.19%,6.60%,$44894.43,$100.66,Cash,
+X24336238,Individual - TOD,SLV,ISHARES SILVER TR ISHARES,200,$53.82,-$1.63,$10764.00,-$326.00,-2.94%,-$6117.34,-36.24%,1.59%,$16881.34,$84.41,Cash,
+X24336238,Individual - TOD, -SLV261016C68,SLV OCT 16 2026 $68 CALL,-2,$0.02,$0.00,-$4.00,$0.00,0.00%,+$128.67,+96.98%,0.00%,$132.67,$0.66,Cash,
+X24336238,Individual - TOD,T,AT&T INC COM USD1,100,$24.47,+$0.04,$2447.00,+$4.00,+0.16%,+$216.75,+9.71%,0.36%,$2230.25,$22.30,Cash,
+X24336238,Individual - TOD, -T261120C28,T NOV 20 2026 $28 CALL,-1,$0.08,+$0.02,-$8.00,-$2.00,-33.34%,+$52.34,+86.74%,0.00%,$60.34,$0.60,Cash,
+X24336238,Individual - TOD,UNH,UNITEDHEALTH GROUP INC,100,$375.98,-$0.34,$37598.00,-$34.00,-0.10%,+$6022.33,+19.07%,5.54%,$31575.67,$315.76,Cash,
+X24336238,Individual - TOD,Pending activity,,,,,$33408.64,,,,,,,,,
+
+"The data and information in this spreadsheet is provided to you solely for your use and is not for distribution. The spreadsheet is provided for informational purposes only, and is not intended to provide advice, nor should it be construed as an offer to sell, a solicitation of an offer to buy or a recommendation for any security by Fidelity or any third party. Data and information shown is based on information known to Fidelity as of the date it was exported and is subject to change. It should not be used in place of your account statements or trade confirmations and is not intended for tax reporting purposes. For more information on the data included in this spreadsheet, including any limitations thereof, go to Fidelity.com."
+
+"Brokerage services are provided by Fidelity Brokerage Services LLC (FBS), 900 Salem Street, Smithfield, RI 02917. Custody and other services provided by National Financial Services LLC (NFS). Both are Fidelity Investment companies and members SIPC, NYSE. Neither FBS nor NFS offer crypto as a direct investment nor provide trading or custody services for such assets."
+
+"Date downloaded Oct-07-2026 8:46 p.m ET"
