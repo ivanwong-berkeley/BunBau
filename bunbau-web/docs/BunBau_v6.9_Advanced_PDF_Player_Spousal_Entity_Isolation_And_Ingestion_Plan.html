@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.9 Implementation Plan — Advanced PDF Player, Spousal Entity Isolation & Staged Verification Ingestion</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    .meta-box {
+      background: #f1f5f9;
+      border-left: 4px solid var(--primary-mint);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .meta-item strong {
+      color: #334155;
+    }
+
+    .meta-full {
+      grid-column: span 2;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfdf5;
+      color: #047857;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #a7f3d0;
+    }
+
+    h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      color: #334155;
+      font-size: 13.5px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .pillar-card {
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
+    }
+
+    .pillar-green {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #065f46;
+    }
+
+    .pillar-purple {
+      background: #faf5ff;
+      border-color: #e9d5ff;
+      color: #6b21a8;
+    }
+
+    .pillar-blue {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .pillar-amber {
+      background: #fffbeb;
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .toolbar {
+        display: none;
+      }
+      .container {
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+      BunBau v6.9 Implementation Plan
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v6.9 Implementation Plan</h1>
+    <div class="subtitle">Advanced PDF Player, Spousal Entity Isolation & Staged Verification Ingestion Architecture</div>
+
+    <div class="meta-box">
+      <div class="meta-item"><strong>Milestone:</strong> v6.9</div>
+      <div class="meta-item"><strong>Application Version:</strong> 2.7.11 (Bumped from 2.7.10)</div>
+      <div class="meta-item"><strong>Build Number:</strong> Build 126 (Bumped from Build 125)</div>
+      <div class="meta-item"><strong>Architecture Version:</strong> v2.9.4 Advanced PDF Player, Spousal Entity Isolation & Staged Verification Ingestion Architecture</div>
+      <div class="meta-item"><strong>Verification Target:</strong> <span class="status-badge">101+ Suites (100% Green) + Zero Next.js 15 Build Errors</span></div>
+      <div class="meta-item"><strong>Date:</strong> October 12, 2026</div>
+      <div class="meta-item meta-full"><strong>Mandatory Version Tracking:</strong> <em>"You also need to update the application version/build/architecture version for every iteration build."</em></div>
+    </div>
+
+    <h2>1. Executive Summary & Four Core Pillars</h2>
+    <div class="grid-2">
+      <div class="pillar-card pillar-green">
+        <h3 style="margin-top:0; color:#065f46;">1. Ingestion & Green Terminal UX</h3>
+        <ul>
+          <li>Pre-upload document preview on left panel before staging.</li>
+          <li>Full-featured Green Monospace Terminal log stream.</li>
+          <li>Right panel verification checkboxes + header "Verify All".</li>
+          <li>Dynamic button: "Verify & Ingest Tax Filings (X Verified)".</li>
+          <li>Confirmation modal before committing to database and storage.</li>
+        </ul>
+      </div>
+
+      <div class="pillar-card pillar-purple">
+        <h3 style="margin-top:0; color:#6b21a8;">2. Dual-Entity Name Parsing (Harmony & Ivan)</h3>
+        <ul>
+          <li>Primary Filer: Harmony; Spouse: Ivan.</li>
+          <li>Ivan is NEVER called "Spouse" in UI labels or cards.</li>
+          <li>Harmony is NEVER called "Harmony & Ivan" on individual milestones.</li>
+          <li>Correctly allocated to Social Security, Medicare, and RMD cards.</li>
+        </ul>
+      </div>
+
+      <div class="pillar-card pillar-blue">
+        <h3 style="margin-top:0; color:#1e40af;">3. Multi-Year Audit Deep Link Precision</h3>
+        <ul>
+          <li>California State Tax Line 48 maps to California Form 540 (p. 32/38).</li>
+          <li>Eliminates false navigation to Schedule E Part II.</li>
+          <li>Accurate line and page bookmarks across all 10+ tax return years.</li>
+        </ul>
+      </div>
+
+      <div class="pillar-card pillar-amber">
+        <h3 style="margin-top:0; color:#92400e;">4. Advanced PDF Viewer Player UX</h3>
+        <ul>
+          <li>Contained height (800px) with smooth in-viewer scrolling.</li>
+          <li>Table of Contents (TOC) sidebar open by default with toggle.</li>
+          <li>In-viewer keyword search ("Form 540", "Line 48", etc.).</li>
+          <li>Jump-to-page input: "Page [ X ] of 52".</li>
+          <li><strong>Detach Option:</strong> Dedicated button for unconstrained full-window / pop-out viewing.</li>
+          <li>Accessibility toolbar: Zoom, Print, Download, Info modal.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>2. Implementation Roadmap</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Module Description</th>
+            <th>Key Files Modified</th>
+            <th>Success Criteria</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Phase 1</strong></td>
+            <td>Version Synchronization</td>
+            <td><code>package.json</code>, <code>AboutModal.tsx</code>, <code>page.tsx</code>, version tests</td>
+            <td>v2.7.11 (Build 126), v2.9.4 Arch verified</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 2</strong></td>
+            <td>Dual-Entity Name Parsing</td>
+            <td><code>taxProfileHelper.ts</code>, <code>lifecyclePlanningEngine.ts</code>, <code>SocialSecurityPlannerCard.tsx</code>, <code>MedicareHealthPlanCard.tsx</code></td>
+            <td>Harmony & Ivan isolated; "Spouse" eliminated</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 3</strong></td>
+            <td>Multi-Year Audit Deep Link Fix</td>
+            <td><code>longitudinalEngine.ts</code>, <code>seedData.ts</code>, <code>LongitudinalComparisonCard.tsx</code></td>
+            <td>CA State Tax links accurately to Form 540</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 4</strong></td>
+            <td>Advanced PDF Viewer Player & Detach</td>
+            <td><code>BunBauDocumentViewer.tsx</code></td>
+            <td>TOC open by default, keyword search, jump-to-page, Detach pop-out, print/download/info toolbar</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 5</strong></td>
+            <td>Ingestion Redesign & Green Terminal</td>
+            <td><code>UploadValidationModal.tsx</code>, <code>TaxMultiUploaderModal.tsx</code></td>
+            <td>Pre-upload preview, green terminal, verify checkboxes, confirmation modal</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 6</strong></td>
+            <td>Quality Assurance & Build</td>
+            <td>Unit test suites, Next.js 15 production build</td>
+            <td>101+ suites green (100%), 0 build errors</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      © 2026 BunBau AI. Personal Portfolio Intelligence. Certified by Antigravity Engineering.
+    </div>
+  </div>
+
+</body>
+</html>

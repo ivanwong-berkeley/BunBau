@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.5 Implementation Plan — Multi-Year Tax PDF Ingestion & Scalability</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-coral: #f43f5e;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 32px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 0;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 28px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      background: #f8fafc;
+      padding: 18px 24px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 28px;
+    }
+
+    .meta-item {
+      font-size: 13px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .meta-value {
+      color: #0f172a;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-phase {
+      background: #ede9fe;
+      color: #6d28d9;
+      border: 1px solid #ddd6fe;
+    }
+
+    .badge-success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-warning {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .feature-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 15px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-desc {
+      color: #475569;
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .code-box {
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+
+    @media print {
+      .toolbar { display: none !important; }
+      body { background: white; }
+      .container { border: none; box-shadow: none; padding: 0; margin: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; color: #0f172a;">
+      BunBau (資本寶) Implementation Plan — v6.5 Preview
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-4 0h-4a2 2 0 00-2 2v4h8v-4a2 2 0 00-2-2z"></path></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>🏛️ BunBau (資本寶) — Milestone v6.5 Implementation Plan</h1>
+    <h2>Multi-Year PDF Tax Ingestion Pipeline, Virtualized 100-Page Document Engine & 10-Year Longitudinal Scalability</h2>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">Target Milestone:</span>
+        <span class="meta-value">v6.5</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status:</span>
+        <span class="meta-value" style="color: #2563eb;">Ready for Approval</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Target Application Version:</span>
+        <span class="meta-value">2.7.7 (Build 122)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Target Architecture Version:</span>
+        <span class="meta-value">v2.9 Multi-Year PDF Ingestion & Longitudinal Scalability</span>
+      </div>
+      <div class="meta-item" style="grid-column: span 2;">
+        <span class="meta-label">Mandate Compliance:</span>
+        <span class="meta-value" style="font-size: 12px; color: #059669;">"You also need to update the application version/build/architecture version for every iteration build." (Enforced)</span>
+      </div>
+    </div>
+
+    <h3>Executive Summary</h3>
+    <p>
+      Milestone <strong>v6.5</strong> comprehensively addresses four critical user requirements for enterprise tax return operations:
+      allowing <strong>unlimited multi-year PDF file ingestion</strong> with incremental historical retention;
+      implementing <strong>typed safety confirmation phrases for tax history deletion</strong> (strictly isolated from financial accounts);
+      re-architecting the PDF document viewer with <strong>continuous vertical scrolling and page virtualization</strong> capable of rendering 50–100 pages per file at 60fps with pinpoint line targeting;
+      and scaling the analytics and comparison engine to an <strong>N-Year Longitudinal Comparison Matrix (up to 10 years)</strong> with sub-50ms execution.
+    </p>
+
+    <h3>Detailed Implementation Pillars</h3>
+
+    <div class="feature-card">
+      <div class="feature-title">
+        <span class="badge badge-phase">Pillar 1</span>
+        Unlimited Multi-Year PDF Ingestion &amp; Incremental History
+      </div>
+      <p class="feature-desc">
+        • <strong>Universal PDF Uptake:</strong> Enhance <code>UploadValidationModal.tsx</code> and <code>TaxMultiUploaderModal.tsx</code> to accept <code>.pdf</code> and <code>application/pdf</code>, with an intelligent document classifier separating tax returns from brokerage statements.<br/>
+        • <strong>Multi-File Batch Queue:</strong> Ingest 5 to 10 years of tax return PDFs simultaneously with no limit on file count.<br/>
+        • <strong>Incremental History:</strong> Persists each year under <code>users/{uid}/taxReturns/{year}</code>. When 2026 is uploaded next year, it appends to existing 2020–2025 history without requiring re-uploading.<br/>
+        • <strong>Financial Data Safety:</strong> Existing CSV and screenshot ingestion pipelines for brokerage accounts remain 100% untouched and protected.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">
+        <span class="badge badge-phase">Pillar 2</span>
+        Granular Tax History Deletion with Typed Safety Confirmation
+      </div>
+      <p class="feature-desc">
+        Enforce strict safety confirmation phrases in the History and Danger Zone managers:
+      </p>
+      <div class="code-box">
+• Delete All History: "Delete all tax history"
+• Delete Single Year: "Delete &lt;Year&gt; tax history" (e.g., "Delete 2024 tax history")
+• Delete Multi-Year Range: "Delete from &lt;FromYear&gt; to &lt;ToYear&gt; history" (e.g., "Delete from 2020 to 2023 history")
+      </div>
+      <p class="feature-desc">
+        Durable purge clears records from both Firestore and local storage cache, automatically returning the user to Tax Demo Mode if all returns are removed.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">
+        <span class="badge badge-phase">Pillar 3</span>
+        High-Performance Continuous Scroll Virtualized PDF Viewer
+      </div>
+      <p class="feature-desc">
+        • <strong>Continuous Vertical Scroll Canvas:</strong> Replaces static single-page card with a full multi-page continuous document stream.<br/>
+        • <strong>Page Virtualization:</strong> Renders active pages dynamically to maintain silky smooth 60fps scrolling across 50–100 pages per file.<br/>
+        • <strong>Accurate Line &amp; Page Targeting:</strong> Clicking an audit bookmark (e.g. Schedule B, Schedule E, Form 8582, CA 540) smoothly scrolls to the exact page offset and pulses the target line with an emerald highlight.<br/>
+        • <strong>Manual Scroll Fallback:</strong> User can freely scroll up/down from any anchor point to inspect neighboring pages manually.<br/>
+        • <strong>Multi-Year Switcher:</strong> Instantly switch between 5–10 years of ingested PDFs directly from the viewer header.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">
+        <span class="badge badge-phase">Pillar 4</span>
+        10-Year Longitudinal Scalability Engine
+      </div>
+      <p class="feature-desc">
+        • <strong>Multi-Year Comparison Engine:</strong> Scales from 2-year diff to an N-year longitudinal matrix (up to 10 years, e.g., 2016–2025).<br/>
+        • <strong>Macro Trends &amp; Sparklines:</strong> Tracks AGI, Taxable Income, Federal/State Tax, and Combined Effective Rate % across the entire decade.<br/>
+        • <strong>Loss Shield Cumulative Ledger:</strong> Tracks year-over-year creation, utilization, and carryforwards of capital losses and passive rental losses.<br/>
+        • <strong>Active Year Grounded Strategy:</strong> Keeps forward-looking life planning (Social Security 62 clawback, Medicare coordination, IRMAA cliff, SECURE 2.0 RMD age 75) laser-focused on the active tax year while drawing context from the 10-year trajectory.<br/>
+        • <strong>Performance:</strong> Sub-50ms execution via memoization.
+      </p>
+    </div>
+
+    <h3>Test Verification Plan</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Verification Target</th>
+          <th>Test Suite File</th>
+          <th>Test Scope</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>PDF Ingestion &amp; Batch Uptake</strong></td>
+          <td><code>tests/unit/tax/pdf_multi_year_ingestion.test.ts</code></td>
+          <td>PDF recognition, batch file handling, incremental year persistence</td>
+        </tr>
+        <tr>
+          <td><strong>Tax Deletion Safety Phrases</strong></td>
+          <td><code>tests/unit/tax/tax_delete_phrase.test.ts</code></td>
+          <td>Strict typed confirmation for all, single year, and range deletion</td>
+        </tr>
+        <tr>
+          <td><strong>Continuous Scroll Document Viewer</strong></td>
+          <td><code>tests/unit/tax/document_viewer_virtualization.test.ts</code></td>
+          <td>Anchor targeting, continuous scrolling state, zoom bar integration</td>
+        </tr>
+        <tr>
+          <td><strong>10-Year Longitudinal Scalability</strong></td>
+          <td><code>tests/unit/tax/longitudinal_scalability.test.ts</code></td>
+          <td>Multi-year calculation speed (&lt;50ms), cumulative loss shield matrix</td>
+        </tr>
+        <tr>
+          <td><strong>Financial Ingestion Safety</strong></td>
+          <td><code>tests/unit/ingestion/reconciliation.test.ts</code></td>
+          <td>Guarantees zero regressions on CSV and screenshot brokerage pipelines</td>
+        </tr>
+        <tr>
+          <td><strong>Full Unit Test Suite</strong></td>
+          <td>93+ test suites across BunBau</td>
+          <td>Target: <strong>545+ / 545+ tests passing (100% green)</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</body>
+</html>

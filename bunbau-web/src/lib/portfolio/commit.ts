@@ -15,6 +15,8 @@ export interface PortfolioStore {
   deleteSnapshots?(uid: string, snapshotIds: string[]): Promise<void>;
   listImports?(uid: string): Promise<ImportRecord[]>;
   deleteImports?(uid: string, importIds: string[]): Promise<void>;
+  /** Optional: delete deprecated v1.x top-level portfolios/{uid} document. */
+  purgeLegacyPortfolio?(uid: string): Promise<void>;
 }
 
 export interface CommitOptions {
@@ -144,6 +146,9 @@ export async function deleteAccounts(
       : accounts.filter((a) => a.institution.trim().toLowerCase() === (institution ?? '').trim().toLowerCase());
   if (mode === 'institution' && !institution) throw new Error('Institution is required.');
   if (targets.length) await store.deleteAccounts(uid, targets.map((a) => a.id));
+  if (mode === 'entire' && store.purgeLegacyPortfolio) {
+    await store.purgeLegacyPortfolio(uid);
+  }
   return targets.length;
 }
 

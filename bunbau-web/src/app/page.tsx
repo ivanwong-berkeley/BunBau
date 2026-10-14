@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePortfolio } from '../contexts/PortfolioContext';
+import { useTax } from '../contexts/TaxContext';
 import { cashSummary, netWorth, blendedApyBreakdown, equitiesBySymbol, optionsList, cryptoBySymbol } from '../lib/portfolio/selectors';
 import { AssetAllocationChart, AssetAllocationTable, PnLAttributionChart, CashManagerChart, EquitiesChart, OptionsChart, CryptoChart } from '../components/DashboardCharts';
 import { EquitiesTable } from '../components/EquitiesTable';
@@ -13,6 +14,7 @@ import { UploadValidationModal } from '../components/UploadValidationModal';
 import { StrategyView } from '../components/StrategyView';
 import { HistoryView } from '../components/HistoryView';
 import { ReportsView } from '../components/reports/ReportsView';
+import { TaxExpertView } from '../components/tax/TaxExpertView';
 import { AppletContainer } from '../components/AppletContainer';
 import { StatCard } from '../components/StatCard';
 import { AIChatbot } from '../components/AIChatbot';
@@ -34,7 +36,7 @@ import {
 import { 
   LogIn, LogOut, UploadCloud, Sparkles, Camera, CheckCircle2,
   ChevronLeft, ChevronRight, LayoutDashboard, 
-  Calendar, LineChart, History, FileSpreadsheet, Sun, Moon,
+  Calendar, LineChart, History, FileSpreadsheet, Landmark, Sun, Moon,
   User, Settings as SettingsIcon, Info as InfoIcon, Target, TriangleAlert, ArrowRight, Lock
 } from 'lucide-react';
 import { 
@@ -71,6 +73,7 @@ export default function Home() {
   const activeVaultConfig = profile?.llmVault?.vendors?.[activeVendor];
   const hasKey = !!activeVaultConfig?.validated || !!profile?.byokKey;
   const { positions, isDemo, loading, institutions, snapshots, importExtraction, removeAccounts, captureSnapshot, accounts } = usePortfolio();
+  const { isTaxDemo, taxReturns } = useTax();
   const [isCapturingSnapshot, setIsCapturingSnapshot] = useState(false);
   const [snapshotToast, setSnapshotToast] = useState<string | null>(null);
 
@@ -129,6 +132,7 @@ export default function Home() {
     { id: 'calendar', label: 'Calendar', icon: <Calendar size={20} /> },
     { id: 'strategy', label: 'Strategy', icon: <LineChart size={20} /> },
     { id: 'reports', label: 'Reports', icon: <FileSpreadsheet size={20} /> },
+    { id: 'tax', label: 'Tax Expert', icon: <Landmark size={20} /> },
     { id: 'history', label: 'History', icon: <History size={20} /> }
   ];
 
@@ -171,7 +175,17 @@ export default function Home() {
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-6 shrink-0">
            <div className="flex items-center gap-3">
              <h2 className="text-lg font-semibold text-slate-900 dark:text-white capitalize">{activeTab}</h2>
-             {isDemo ? (
+             {activeTab === 'tax' ? (
+               isTaxDemo ? (
+                 <span data-testid="mode-badge-tax-demo" className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                   <Sparkles size={12} /> Tax Demo Mode
+                 </span>
+               ) : (
+                 <span data-testid="mode-badge-tax-live" className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                   <CheckCircle2 size={12} /> Live Tax Mode ({taxReturns.length} {taxReturns.length === 1 ? 'Return' : 'Returns'})
+                 </span>
+               )
+             ) : isDemo ? (
                <span data-testid="mode-badge-demo" className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                  <Sparkles size={12} /> Demo Mode
                </span>
@@ -277,7 +291,7 @@ export default function Home() {
                          className="w-full p-3 bg-gray-50 dark:bg-slate-900/50 hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-between text-xs text-gray-500 transition"
                        >
                          <span className="flex items-center gap-1"><InfoIcon size={12}/> About BunBau</span>
-                         <span>v2.7.4 (Build 119)</span>
+                         <span>v2.7.16 (Build 131)</span>
                        </button>
                     </div>
                    </>
@@ -316,7 +330,7 @@ export default function Home() {
                <button onClick={() => setSnapshotToast(null)} className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline shrink-0 ml-3">Dismiss</button>
              </div>
            )}
-           {isDemo && (
+           {isDemo && activeTab !== 'tax' && (
              <div data-testid="demo-banner" className="mb-6 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-lg text-sm flex items-center justify-between font-medium gap-2 shadow-sm">
                <div className="flex items-center gap-2">
                  <InfoIcon size={16} className="shrink-0" />
@@ -466,6 +480,7 @@ export default function Home() {
              {activeTab === 'calendar' && !loading && <MaturityCalendar positions={positions} accounts={accounts} />}
            {activeTab === 'strategy' && !loading && <StrategyView />}
            {activeTab === 'reports' && !loading && <ReportsView isSidebarExpanded={isSidebarExpanded} />}
+           {activeTab === 'tax' && !loading && <TaxExpertView />}
             {activeTab === 'history' && (
               <HistoryView 
                 onCaptureSnapshot={handleCaptureSnapshot} 
@@ -504,6 +519,8 @@ export default function Home() {
         onClose={() => setIsUploaderOpen(false)} 
         institutions={institutions}
         existingAccounts={accounts}
+        context={activeTab === 'tax' ? 'tax' : 'portfolio'}
+        initialTab={activeTab === 'tax' ? 'pdf' : 'csv'}
         onApprove={async (extraction, files) => {
           const result = await importExtraction(extraction, files);
           if (result.record.storageErrors?.length) {

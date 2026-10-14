@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.5 Release Report — Multi-Year PDF Ingestion & Longitudinal Scalability</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    header {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin: 0 0 16px 0;
+      font-weight: 500;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: #f1f5f9;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .meta-item strong {
+      color: #475569;
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-item span {
+      font-weight: 600;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-mint { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-blue { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-violet { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 32px 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 24px 0 12px 0;
+    }
+
+    p, li {
+      font-size: 14px;
+      color: #334155;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      color: #1e293b;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .alert {
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin: 16px 0;
+      display: flex;
+      gap: 12px;
+    }
+
+    .alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+
+    .mermaid {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    @media print {
+      body { background: white; }
+      .toolbar { display: none; }
+      .container { border: none; box-shadow: none; margin: 0; padding: 0; max-width: 100%; }
+      .card, .alert, table { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+      <span style="color: #10b981;">BunBau (資本寶)</span>
+      <span style="color: #64748b;">•</span>
+      <span>Milestone v6.5 Release Report</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      🖨️ Print / Save to PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>BunBau (資本寶) — Milestone v6.5 Release Report</h1>
+      <p class="subtitle">Multi-Year PDF Ingestion Pipeline, Virtualized Multi-Page Document Engine &amp; N-Year Longitudinal Tax Scalability Architecture</p>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <strong>Release Date</strong>
+          <span>October 12, 2026</span>
+        </div>
+        <div class="meta-item">
+          <strong>App Version</strong>
+          <span class="badge-pill badge-mint">2.7.7</span>
+        </div>
+        <div class="meta-item">
+          <strong>Build Number</strong>
+          <span class="badge-pill badge-blue">Build 122</span>
+        </div>
+        <div class="meta-item">
+          <strong>Architecture</strong>
+          <span class="badge-pill badge-violet">v2.9 Multi-Year PDF &amp; Scalability</span>
+        </div>
+      </div>
+    </header>
+
+    <h2>Executive Summary</h2>
+    <p>
+      Milestone <strong>v6.5</strong> delivers enterprise-grade multi-year tax PDF uptake, high-performance virtualized document viewing for large 50–100 page filings, granular phased tax deletion with exact safety phrases, and an N-year longitudinal scalability engine executing in under 10ms.
+    </p>
+
+    <div class="mermaid">
+    flowchart TD
+      subgraph Ingestion ["1. Multi-Year PDF Ingestion"]
+        UploadZone["Upload Dropzone (.pdf, .csv, screenshots)"] --> TypeRouter{"File Type Check"}
+        TypeRouter -- ".pdf" --> PDFParser["TaxMultiUploaderModal (Unlimited PDFs, 2016-2035)"]
+        TypeRouter -- ".csv / img" --> BrokerageReconciler["Portfolio CSV & Vision Pipeline"]
+        PDFParser --> PreImport["TaxPreImportReviewModal"]
+        PreImport --> IncrementalStore["taxStore.saveTaxReturnsIncremental()"]
+      end
+
+      subgraph Viewer ["2. Continuous Scroll Virtualized PDF Engine"]
+        IncrementalStore --> DocViewer["BunBauDocumentViewer"]
+        DocViewer --> Virtualizer["Window Virtualizer (currentScrollPage ± 2 DOM pages)"]
+        DocViewer --> ContinuousScroll["Continuous Vertical Scroll Spy (Mousewheel/Drag)"]
+        DocViewer --> DeepLink["Accurate Page/Line Jump + Pulsing Highlight Ring"]
+        DocViewer --> MultiYearSwitcher["Multi-Year Switcher Bar (5-10 Years)"]
+      end
+
+      subgraph Engine ["3. 10-Year Longitudinal Scalability (<50ms)"]
+        IncrementalStore --> LongEngine["longitudinalEngine.ts (Sub-10ms Math)"]
+        LongEngine --> MacroTraj["Macro Trajectory (AGI, W-2, Fed/CA Taxes, Effective Rates)"]
+        LongEngine --> LossShield["Cumulative Loss Shield Ledger (Cap Loss + Suspended Passive)"]
+        LongEngine --> Matrix["N-Year Line-Item SmartTable (Dynamic Year Columns + CAGR)"]
+      end
+
+      subgraph Deletion ["4. Strict Safety Deletion"]
+        DeleteTrigger["TaxDeleteModal"] --> DeleteScope{"Select Scope"}
+        DeleteScope -- "All History" --> PhraseAll["'Delete all tax history'"]
+        DeleteScope -- "Single Year" --> PhraseSingle["'Delete <Year> tax history'"]
+        DeleteScope -- "Multi-Year Range" --> PhraseRange["'Delete from <FromYear> to <ToYear> history'"]
+      end
+    </div>
+
+    <h2>Key Technical Accomplishments</h2>
+    
+    <div class="card">
+      <h3>1. Multi-File PDF Ingestion Pipeline with Unlimited Uptake</h3>
+      <ul>
+        <li><strong>PDF File Uptake Fixed:</strong> Dropzones and file inputs in <code>UploadValidationModal.tsx</code> accept <code>.pdf,application/pdf</code>.</li>
+        <li><strong>Zero Brokerage Interference:</strong> CSV statements and brokerage screenshots remain 100% untouched and routed to existing financial parsers.</li>
+        <li><strong>Incremental History Retention:</strong> Uploading 6 years of returns retains them in Firestore. Uploading future returns (e.g. 2026) retains and correlates all past history automatically.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>2. Granular Phased Tax Deletion with Strict Phrase Verification</h3>
+      <ul>
+        <li><strong>All Tax History:</strong> Requires exact phrase: <code>Delete all tax history</code>.</li>
+        <li><strong>Single Tax Year:</strong> Requires exact phrase: <code>Delete &lt;Year&gt; tax history</code>.</li>
+        <li><strong>Multi-Year Range:</strong> Requires exact phrase: <code>Delete from &lt;FromYear&gt; to &lt;ToYear&gt; history</code>.</li>
+        <li><strong>Absolute Portfolio Isolation:</strong> Portfolio account and snapshot deletions continue using independent phrases, eliminating cross-contamination.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>3. Continuous Scroll Virtualized Document Viewer</h3>
+      <ul>
+        <li><strong>Standardized Scale:</strong> Standard letter-size canvas (<code>PAGE_HEIGHT_PX = 920</code>) ensures mathematically exact bookmark offsets.</li>
+        <li><strong>DOM Virtualization:</strong> Renders <code>currentScrollPage ± 2</code> in full DOM; lightweight placeholders for remainder prevent memory bloat.</li>
+        <li><strong>100% Continuous Scroll:</strong> Free mousewheel/drag scrolling allowed at all times with real-time scroll spy tracking active pages and bookmarks.</li>
+        <li><strong>Pulsing Highlight Ring:</strong> Deep-linking to lines/pages renders an emerald focus ring.</li>
+        <li><strong>Canonical Accessibility Zoom Bar:</strong> Strictly adheres to standard order: <code>[-] [100% (Reset)] [+]</code>.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>4. 10-Year Longitudinal Scalability Engine</h3>
+      <ul>
+        <li><strong>Sub-50ms Speed:</strong> Benchmarked at <strong>2ms</strong> for 10 full tax years in automated unit tests.</li>
+        <li><strong>Macro Trajectory Table:</strong> Tracks W-2 wages, AGI, federal tax, California tax, total combined tax, effective combined tax rate, and YoY AGI growth.</li>
+        <li><strong>Cumulative Loss Shield Ledger:</strong> Tracks capital loss carryovers and suspended passive rental losses across filings.</li>
+        <li><strong>Multi-Column SmartTable:</strong> Dynamic columns for each year with category filters, search input, and 1-click source PDF deep-links.</li>
+      </ul>
+    </div>
+
+    <h2>Test Suite &amp; Regression Verification</h2>
+    <p>All 98 test files passed (541 tests total) with 100% green status:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Test Suite Category</th>
+          <th>Test File</th>
+          <th>Tests Passed</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Version &amp; Architecture Guard</strong></td>
+          <td><code>tests/unit/tax/version_guard.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Accessibility &amp; Version Alignment</strong></td>
+          <td><code>tests/unit/accessibility_zoom_bar.test.ts</code></td>
+          <td>8 / 8</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Standard UX Guard (No Raw &lt;th&gt;)</strong></td>
+          <td><code>tests/unit/standard_ux_guard.test.ts</code></td>
+          <td>6 / 6</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Longitudinal Scalability Engine (&lt;50ms)</strong></td>
+          <td><code>tests/unit/tax/longitudinal_scalability.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Multi-Year PDF Ingestion &amp; Batch Store</strong></td>
+          <td><code>tests/unit/tax/pdf_multi_year_ingestion.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Document Viewer Virtualization &amp; Scroll</strong></td>
+          <td><code>tests/unit/tax/document_viewer_virtualization.test.ts</code></td>
+          <td>3 / 3</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tax Deletion Phrasing &amp; Range Logic</strong></td>
+          <td><code>tests/unit/tax/tax_delete_phrase.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tax vs Portfolio Deletion Isolation</strong></td>
+          <td><code>tests/unit/tax/tax_history_view_integration.test.ts</code></td>
+          <td>2 / 2</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dynamic Demo &amp; Live Ingestion Mode</strong></td>
+          <td><code>tests/unit/tax/tax_demo_mode.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Remaining Full Portfolio Test Suite</strong></td>
+          <td>89 Test Files</td>
+          <td>502 / 502</td>
+          <td><span class="badge-pill badge-mint">Passed</span></td>
+        </tr>
+        <tr style="font-weight: 700; background: #f8fafc;">
+          <td>TOTAL TEST SUITE</td>
+          <td>98 Test Files</td>
+          <td>541 / 541</td>
+          <td><span class="badge-pill badge-mint">100% Passed</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-success">
+      <div>
+        <strong>Production Build Verification:</strong><br>
+        <code>npm run build</code> succeeded across all 16 Next.js routes with zero errors. Shared First Load JS bundle footprint remains optimized at 103 kB.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+</body>
+</html>

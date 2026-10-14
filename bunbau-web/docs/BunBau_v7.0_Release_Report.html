@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v7.0 Release Report — Chronological Dynamic Tax KPI, Portal Detach & Streamlined PDF Viewer UX Architecture</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+    }
+
+    .metadata-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metadata-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .metadata-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+
+    .box-quote {
+      background: #f1f5f9;
+      border-left: 4px solid #3b82f6;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #334155;
+      margin: 16px 0;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    ul, ol {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: #ffffff;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    @media print {
+      .toolbar {
+        display: none;
+      }
+      body {
+        background: #ffffff;
+      }
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div>
+      <strong style="color: #0f172a;">BunBau Financial Intelligence Architecture</strong>
+      <span style="color: #64748b; font-size: 13px; margin-left: 8px;">Release Report v7.0 (Build 127)</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+      </svg>
+      Print to PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v7.0 Release Report</h1>
+    <div style="font-size: 16px; color: #64748b; font-weight: 500;">
+      Chronological Dynamic Tax KPI Engine, Portal Detach Workstation & Streamlined PDF Player UX Architecture
+    </div>
+
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <span class="metadata-label">Milestone Designation</span>
+        <span class="metadata-value">v7.0</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Application Version</span>
+        <span class="metadata-value">2.7.12 (Build 127)</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Architecture Version</span>
+        <span class="metadata-value">v2.9.5 Chronological Dynamic Tax KPI, Portal Detach & Streamlined PDF Viewer UX Architecture</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Regression Verification</span>
+        <span class="metadata-value"><span class="badge-status">✓ 106 / 106 Suites (612 / 612 Tests Green)</span></span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Production Build</span>
+        <span class="metadata-value"><span class="badge-status">✓ Next.js 15 Compiled (16 / 16 Routes Verified)</span></span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Release Date</span>
+        <span class="metadata-value">October 12, 2026</span>
+      </div>
+    </div>
+
+    <div class="box-quote">
+      "You also need to update the application version/build/architecture version for every iteration build."
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      Milestone <strong>v7.0</strong> delivers a major precision upgrade to BunBau's multi-year tax analytics, executive KPI presentation, and PDF document workstation. Addressing production audits and user feedback across 5 UI screenshots, v7.0 resolves:
+    </p>
+    <ul>
+      <li><strong>Overview KPI Year Focus & Chronological Processing:</strong> All tax filings are sorted and processed chronologically (<code>2016..2025</code> or <code>..2026</code>). Overview KPI cards explicitly spotlight the latest filing year (<code>2025 Adjusted Gross Income</code>, <code>2025 Total Tax</code>, <code>2025 Effective Tax Rate</code>, <code>2026 Loss Shields</code>) with <code>Latest Filing (2025)</code> badges and clear <code>vs 2024</code> comparison trend deltas.</li>
+      <li><strong>React Portal-Based Detach Workstation:</strong> Detaching the PDF viewer now uses <code>createPortal(..., document.body)</code> with <code>z-[100]</code>. It spans 100% of the display viewport (100vw × 100vh), eliminates left menu overlap, grants the TOC sidebar full breathing room, and includes a uniform workstation header with <code>Attach / Dock</code>, <code>Open in New Window</code>, and <code>Close</code> controls.</li>
+      <li><strong>Streamlined PDF Player Toolbar & Uncrushed Keyword Search Box:</strong> Replaced the horizontal 9-button multi-year explosion with an elegant, compact <strong>Tax Year Dropdown</strong> (<code>[ 2025 Return ▾ ]</code>), freeing up over 350px of toolbar width. The keyword search bar now has guaranteed flex bounds (<code>min-w-[200px] max-w-sm flex-1</code>) and an instant clear button (<code>X</code>).</li>
+    </ul>
+
+    <h2>2. Key Architectural Deliverables</h2>
+    
+    <div class="card">
+      <div class="card-title">1. Chronological Dynamic Tax KPI Engine (2025 Focus)</div>
+      <p>
+        In <code>TaxContext.tsx</code>, active tax returns are sorted chronologically ascending (<code>sortedTaxReturns</code>). The comparison engine dynamically determines <code>latestTaxReturn</code> (2025) and <code>previousTaxReturn</code> (2024). Cards in <code>TaxExecutiveSummaryCards.tsx</code> prominently display the latest filing year in the title and badge, while comparisons explicitly compare against the prior year (<code>vs 2024</code>).
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2. React Portal-Based Workstation Detach (Zero Left Menu Overlap)</div>
+      <p>
+        The detached PDF viewer in <code>BunBauDocumentViewer.tsx</code> mounts directly onto <code>document.body</code> via React Portal at <code>z-[100]</code>, completely outside the application's inner stacking context. The BunBau left navigation menu (<code>z-20</code>) stays beneath it, eliminating overlap and giving the Table of Contents (TOC) 100% visibility.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3. Streamlined PDF Player Toolbar & Uncrushed Keyword Search Box</div>
+      <p>
+        Toolbar replaced the wide row of 9 multi-year buttons with a compact <code>&lt;select data-testid="viewer-year-select"&gt;</code> dropdown. The search container has dedicated flex bounds (<code>min-w-[200px] max-w-sm</code>) flanked by <code>shrink-0</code> button clusters, ensuring the search box is never crushed.
+      </p>
+    </div>
+
+    <h2>3. Verification & Test Execution Results</h2>
+    <pre><code>$ npm test
+✓ 106 passed (106 test files)
+✓ 612 passed (612 tests)
+Duration: 4.40s
+
+$ npm run build
+▲ Next.js 15.5.27
+✓ Compiled successfully in 6.4s
+✓ Linting and checking validity of types
+✓ Generating static pages (16/16)
+Finalizing page optimization</code></pre>
+
+    <h2>4. Architectural Version Synchronization</h2>
+    <ul>
+      <li><strong>Package.json:</strong> <code>"version": "2.7.12"</code></li>
+      <li><strong>About Modal:</strong> <code>2.7.12 (Build 127)</code></li>
+      <li><strong>Architecture Version:</strong> <code>v2.9.5 Chronological Dynamic Tax KPI, Portal Detach & Streamlined PDF Viewer UX Architecture</code></li>
+      <li><strong>Application Page:</strong> <code>v2.7.12 (Build 127)</code></li>
+    </ul>
+
+  </div>
+
+</body>
+</html>

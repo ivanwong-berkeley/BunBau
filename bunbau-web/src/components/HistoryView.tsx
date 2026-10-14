@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { AppletContainer } from './AppletContainer';
 import { usePortfolio } from '../contexts/PortfolioContext';
 import { PortfolioSnapshot, ImportRecord, CanonicalPosition } from '../lib/portfolio/types';
-import { Camera, History as HistoryIcon, UploadCloud, Eye, Trash2, Calendar, ShieldAlert, ArrowLeft, Image as ImageIcon, Layers } from 'lucide-react';
+import { Camera, History as HistoryIcon, UploadCloud, Eye, Trash2, Calendar, ShieldAlert, ArrowLeft, Image as ImageIcon, Layers, Landmark } from 'lucide-react';
 import { AssetAllocationChart, AssetAllocationTable, EquitiesChart, OptionsChart } from './DashboardCharts';
 import { flattenPositions, netWorth, blendedApy } from '../lib/portfolio/selectors';
 import { HistoryDeleteScope, expectedHistoryDeletePhrase, matchesHistoryDeletePhrase } from '../lib/portfolio/deletePhrase';
@@ -14,6 +14,8 @@ import { TableSortBar } from './common/SmartSortBar';
 import { SmartTable } from './common/SmartTable';
 import { SnapshotPositionsTable } from './SnapshotPositionsTable';
 import { AccountVersionsRollback } from './history/AccountVersionsRollback';
+import { useTax } from '../contexts/TaxContext';
+import { TaxDeleteModal } from './tax/TaxDeleteModal';
 
 interface HistoryViewProps {
   onCaptureSnapshot?: () => Promise<void>;
@@ -22,7 +24,9 @@ interface HistoryViewProps {
 
 export function HistoryView({ onCaptureSnapshot, isCapturingSnapshot }: HistoryViewProps) {
   const { snapshots, imports, isDemo, removeSnapshots, removeUploads } = usePortfolio();
-  const [subTab, setSubTab] = useState<'snapshots' | 'uploads' | 'versions'>('snapshots');
+  const { taxReturns, activeTaxReturns, isTaxDemo, deleteTaxReturnYears, clearTaxReturns } = useTax();
+  const [subTab, setSubTab] = useState<'snapshots' | 'uploads' | 'versions' | 'tax'>('snapshots');
+  const [showTaxDeleteModal, setShowTaxDeleteModal] = useState(false);
 
   // Viewing a specific snapshot or upload review
   const [viewingSnapshot, setViewingSnapshot] = useState<PortfolioSnapshot | null>(null);
@@ -348,6 +352,17 @@ export function HistoryView({ onCaptureSnapshot, isCapturingSnapshot }: HistoryV
           >
             <Layers size={16} /> Account Versions & Rollback
           </button>
+          <button
+            onClick={() => setSubTab('tax')}
+            data-testid="history-tab-tax"
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2 ${
+              subTab === 'tax'
+                ? 'bg-primary-violet text-white shadow-sm'
+                : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Landmark size={16} /> Tax Documents ({isTaxDemo ? 'Demo (6)' : taxReturns.length})
+          </button>
         </div>
 
         <div className="flex items-center gap-3">
@@ -362,6 +377,26 @@ export function HistoryView({ onCaptureSnapshot, isCapturingSnapshot }: HistoryV
                 <option key={inst} value={inst}>{inst}</option>
               ))}
             </select>
+          )}
+
+          {subTab === 'uploads' && (
+            <button
+              onClick={() => setShowTaxDeleteModal(true)}
+              data-testid="uploads-delete-tax-btn"
+              className="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-900/50 transition flex items-center gap-1.5"
+            >
+              <Trash2 size={14} /> Delete Tax Files
+            </button>
+          )}
+
+          {subTab === 'tax' && (
+            <button
+              onClick={() => setShowTaxDeleteModal(true)}
+              data-testid="open-tax-delete-modal"
+              className="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 rounded-lg border border-rose-200 dark:border-rose-900/50 transition flex items-center gap-1.5"
+            >
+              <Trash2 size={14} /> Clear / Delete Tax History
+            </button>
           )}
 
           {((subTab === 'snapshots' && snapshots.length > 0) || (subTab === 'uploads' && imports.length > 0)) && (
@@ -616,6 +651,73 @@ export function HistoryView({ onCaptureSnapshot, isCapturingSnapshot }: HistoryV
         </AppletContainer>
       )}
 
+      {subTab === 'tax' && (
+        <AppletContainer
+          title="Filed Tax Return Documents & Historical Filings"
+          infoDescription="Historical IRS Form 1040 and California Form 540 filings with multi-year continuity and granular deletion."
+        >
+          <div className="p-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left" data-testid="tax-history-table">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-slate-800 text-gray-400 uppercase tracking-wider font-semibold">
+                    <StaticTh align="left" className="py-2.5 px-3">Tax Filing Year</StaticTh>
+                    <StaticTh align="left" className="py-2.5 px-3">Filing Status</StaticTh>
+                    <StaticTh align="right" className="py-2.5 px-3">Adjusted Gross Income (AGI)</StaticTh>
+                    <StaticTh align="right" className="py-2.5 px-3">Total Combined Tax</StaticTh>
+                    <StaticTh align="right" className="py-2.5 px-3">Loss Shield Carryover</StaticTh>
+                    <StaticTh align="left" className="py-2.5 px-3">Ingested PDF Document</StaticTh>
+                    <StaticTh align="right" className="py-2.5 px-3">Pages</StaticTh>
+                    <StaticTh align="center" className="py-2.5 px-3">Action</StaticTh>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-slate-800 font-mono">
+                  {activeTaxReturns
+                    .slice()
+                    .sort((a, b) => b.taxYear - a.taxYear)
+                    .map((ret) => (
+                      <tr key={ret.taxYear} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition">
+                        <td className="py-3 px-3 font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                          <Calendar size={13} className="text-primary-mint" />
+                          <span>{ret.taxYear} Return</span>
+                        </td>
+                        <td className="py-3 px-3 font-sans font-medium text-slate-700 dark:text-slate-300">
+                          {ret.profile?.filingStatus ? ret.profile.filingStatus.toUpperCase() : 'MFJ'}
+                        </td>
+                        <td className="py-3 px-3 text-right font-bold text-slate-900 dark:text-white">
+                          ${ret.federal.agi.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-3 text-right text-slate-700 dark:text-slate-300">
+                          ${(ret.totalCombinedTax || ret.federal.totalFederalTax + ret.california.caTaxAfterCredits).toLocaleString()}
+                        </td>
+                        <td className="py-3 px-3 text-right text-emerald-600 dark:text-emerald-400 font-bold">
+                          ${(ret.federal.capitalLossCarryoverToNextYear || 0).toLocaleString()}
+                        </td>
+                        <td className="py-3 px-3 font-sans text-gray-500 truncate max-w-xs">
+                          {ret.pdfDocumentMetadata.fileName}
+                        </td>
+                        <td className="py-3 px-3 text-right text-gray-500">
+                          {ret.pdfDocumentMetadata.totalPages} p.
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setShowTaxDeleteModal(true)}
+                            data-testid={`delete-tax-year-btn-${ret.taxYear}`}
+                            className="px-2.5 py-1 text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 rounded-lg transition inline-flex items-center gap-1"
+                          >
+                            <Trash2 size={11} /> Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </AppletContainer>
+      )}
+
       {/* Delete History Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -715,6 +817,21 @@ export function HistoryView({ onCaptureSnapshot, isCapturingSnapshot }: HistoryV
           </div>
         </div>
       )}
+
+      {/* Strict Phrased Tax Deletion Modal */}
+      <TaxDeleteModal
+        isOpen={showTaxDeleteModal}
+        onClose={() => setShowTaxDeleteModal(false)}
+        availableYears={activeTaxReturns.map((r) => r.taxYear)}
+        onConfirmDelete={async (scope, targetYears) => {
+          if (scope === 'all') {
+            await clearTaxReturns();
+          } else {
+            await deleteTaxReturnYears(targetYears);
+          }
+          setShowTaxDeleteModal(false);
+        }}
+      />
     </div>
   );
 }

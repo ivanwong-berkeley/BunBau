@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.42 Implementation Plan — Tax Demo vs. Live Mode</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-amber: #f59e0b;
+      --primary-violet: #8b5cf6;
+      --primary-coral: #f43f5e;
+      --bg-dark: #0b1021;
+      --card-bg: #151c33;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 32px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-b {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-amber);
+      color: white;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--primary-violet);
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+
+    .meta-box {
+      background: #f1f5f9;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 13px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .meta-box strong {
+      color: #334155;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+
+    p, li {
+      font-size: 14px;
+      color: #475569;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .banner-demo {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin: 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .banner-live {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin: 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #0f172a;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .toolbar {
+        display: none !important;
+      }
+      .container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+      @page {
+        size: letter portrait;
+        margin: 15mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: bold; font-size: 14px; display: flex; items-center; gap: 8px;">
+      <span>BunBau (資本寶) — Milestone v6.42 Implementation Plan</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      🖨️ Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1><span class="badge-b">B</span> BunBau (資本寶) — Milestone v6.42 Plan</h1>
+    <div class="subtitle">Tax Expert: Dynamic Demo/Live Mode, Fictitious Mock Seed &amp; Runtime Ingestion Pipeline</div>
+
+    <div class="meta-box">
+      <div><strong>Target Milestone:</strong> v6.42</div>
+      <div><strong>Application Version:</strong> 2.7.6 (Build 121)</div>
+      <div><strong>Architecture Version:</strong> v2.8.1 Tax Expert Dynamic Demo/Live Mode</div>
+      <div><strong>Status:</strong> Ready for User Approval</div>
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      In BunBau, brokerage account intelligence adheres to a clean separation of concerns:
+    </p>
+    <ul>
+      <li><strong>Demo Mode:</strong> When a user logs in and has uploaded no statements (<code>accounts.length === 0</code>), the app activates Demo Mode, displays a prominent blue alert banner, and presents synthetic seed accounts.</li>
+      <li><strong>Live Mode:</strong> Once the user uploads a verified statement, the app dynamically transitions to Live Mode, shows the green verified badge, and saves accounts in Firestore under <code>users/{uid}/accounts</code>.</li>
+    </ul>
+    <p>
+      Milestone <strong>v6.42</strong> applies this exact pattern to the <strong>Tax Expert</strong> module:
+    </p>
+    <ul>
+      <li><strong>Zero Private Data in Build:</strong> Completely purges all personal tax data from the repository source code and build.</li>
+      <li><strong>High-Fidelity Synthetic Mock Returns:</strong> Generates realistic mock returns for fictitious taxpayers (Alex &amp; Jordan Taylor) with identical mathematical and financial planning capabilities.</li>
+      <li><strong>Dynamic TaxContext:</strong> Implements a runtime React context that detects whether tax return PDFs have been uploaded at runtime by the user.</li>
+      <li><strong>Dynamic UI Banners:</strong> Renders a blue notice banner in Demo Mode and an emerald notice in Live Mode.</li>
+    </ul>
+
+    <h2>2. Demo vs. Live UI Banner Design</h2>
+    <div class="banner-demo">
+      <div>
+        <strong>Tax Demo Mode:</strong> You are viewing sample mock tax returns (Alex &amp; Jordan Taylor). Upload your actual Form 1040/540 PDF to activate personalized Live Tax Intelligence.
+      </div>
+      <button style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+        Upload Tax Return (PDF)
+      </button>
+    </div>
+
+    <div class="banner-live">
+      <div>
+        <strong>Live Tax Intelligence Active:</strong> Grounded in your 2 verified filed returns (2024, 2025). All SSNs zero-plaintext encrypted.
+      </div>
+      <div>
+        <button style="background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-right: 8px;">
+          Upload Another Year
+        </button>
+        <span style="color: #dc2626; cursor: pointer; font-size: 12px; text-decoration: underline;">Reset to Demo</span>
+      </div>
+    </div>
+
+    <h2>3. Synthetic Mock Taxpayer Profile &amp; Returns</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Attribute</th>
+          <th>2024 Mock Return</th>
+          <th>2025 Mock Return</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Taxpayers</strong></td>
+          <td colspan="2">Alex Taylor (64) &amp; Jordan Taylor (62) — MFJ, San Francisco, CA</td>
+        </tr>
+        <tr>
+          <td><strong>W-2 Wages</strong></td>
+          <td>$215,000 (Pacific Cloud Systems)</td>
+          <td>$188,000 (Pacific Cloud Systems)</td>
+        </tr>
+        <tr>
+          <td><strong>Taxable Interest &amp; Dividends</strong></td>
+          <td>$23,700 ($18.5k int + $5.2k div)</td>
+          <td>$22,600 ($16.2k int + $6.4k div)</td>
+        </tr>
+        <tr>
+          <td><strong>Capital Gains / Losses</strong></td>
+          <td>+$3,500 net gain</td>
+          <td>-$3,000 ordinary limit (<strong>$28,500 carryover to 2026</strong>)</td>
+        </tr>
+        <tr>
+          <td><strong>Adjusted Gross Income (AGI)</strong></td>
+          <td>$292,000</td>
+          <td><strong>$204,100</strong> ($1,900 below $206k IRMAA cliff!)</td>
+        </tr>
+        <tr>
+          <td><strong>Deductions Method</strong></td>
+          <td>Standard ($29,200)</td>
+          <td><strong>Itemized ($48,500)</strong> via $40k expanded SALT cap</td>
+        </tr>
+        <tr>
+          <td><strong>Total Federal Tax</strong></td>
+          <td>$47,200 (includes $1,596 NIIT)</td>
+          <td><strong>$23,400</strong> (NIIT eliminated!)</td>
+        </tr>
+        <tr>
+          <td><strong>Overpayment to Next Year</strong></td>
+          <td>$1,800</td>
+          <td><strong>$23,800</strong> (100% safe harbor satisfied)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Lifecycle Planning Engine Continuity</h2>
+    <ul>
+      <li><strong>Social Security Strategy:</strong> Jordan (62 in 2026) earning $188k+ triggers a 100% earnings clawback ($1 per $2 over $23,400). Recommendation: Defer claiming until age 70 for $4,150/mo.</li>
+      <li><strong>Medicare Coordination:</strong> Alex turns 65 in 2027 while Jordan is 63 with active employer group coverage ($28,500 Box 12 Code DD). Alex enrolls in Part A and delays Part B/D without penalty.</li>
+      <li><strong>IRMAA Cliff Monitor:</strong> 2025 AGI ($204,100) sits $1,900 below the $206,000 threshold. Prevents ~$2,000/yr in household Medicare surcharges.</li>
+      <li><strong>SECURE 2.0 RMD at 75:</strong> Alex (2037) and Jordan (2039) RMD cliff with a 10-year Roth conversion tax valley of ~$45k/year.</li>
+    </ul>
+
+    <h2>5. Implementation Deliverables &amp; Steps</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Action Item</th>
+          <th>Files Affected</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td>Create TaxContext &amp; Runtime State Store</td>
+          <td><code>src/contexts/TaxContext.tsx</code></td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td>Purge Personal Data &amp; Inject Mock Demo Returns</td>
+          <td><code>src/lib/tax/seedData.ts</code></td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td>Update Comparison &amp; Lifecycle Engines for Dynamic Input</td>
+          <td><code>src/lib/tax/taxComparisonEngine.ts</code>, <code>lifecyclePlanningEngine.ts</code></td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td>Implement Dynamic Topbar Pill &amp; Tax Banners</td>
+          <td><code>src/app/page.tsx</code>, <code>src/components/tax/TaxExpertView.tsx</code></td>
+        </tr>
+        <tr>
+          <td><strong>5</strong></td>
+          <td>Real File Upload Dropzone &amp; Ingestion Endpoints</td>
+          <td><code>src/components/tax/TaxMultiUploaderModal.tsx</code>, <code>api/v1/tax/ingest/*</code></td>
+        </tr>
+        <tr>
+          <td><strong>6</strong></td>
+          <td>Connect Shared RAG Spine to Dynamic Active Returns</td>
+          <td><code>src/lib/rag/TaxPortfolioChunker.ts</code>, <code>HybridRetriever.ts</code></td>
+        </tr>
+        <tr>
+          <td><strong>7</strong></td>
+          <td>Version Alignment to 2.7.6 (Build 121)</td>
+          <td><code>package.json</code>, <code>AboutModal.tsx</code>, <code>page.tsx</code></td>
+        </tr>
+        <tr>
+          <td><strong>8</strong></td>
+          <td>Automated Test Verification &amp; Zero Regressions</td>
+          <td><code>tests/unit/tax/*.test.ts</code>, <code>npm test</code>, <code>npm run build</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
+      BunBau AI Financial Intelligence &copy; 2026. Confidential and Proprietary.
+    </div>
+  </div>
+
+</body>
+</html>

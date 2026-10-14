@@ -45,6 +45,12 @@ export interface SmartTableProps<T> {
   headClassName?: string;
   showSortBar?: boolean;
   className?: string;
+  /** Optional ref to the horizontal/vertical scroll container wrapping the table */
+  scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  /** Optional className for the scrollable viewport wrapping the table */
+  scrollableViewportClassName?: string;
+  /** Pin the first column on the left during horizontal scrolling */
+  stickyFirstColumn?: boolean;
 }
 
 /**
@@ -67,6 +73,9 @@ export function SmartTable<T>({
   headClassName = 'sticky top-0 z-10 bg-gray-100 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800',
   showSortBar = true,
   className = '',
+  scrollContainerRef,
+  scrollableViewportClassName = 'overflow-x-auto w-full',
+  stickyFirstColumn = false,
 }: SmartTableProps<T>) {
   const getters = useMemo(() => {
     const g: Record<string, (row: T) => unknown> = {};
@@ -120,63 +129,85 @@ export function SmartTable<T>({
           className="mb-2"
         />
       )}
-      <table className={`w-full ${textSize} text-left text-slate-900 dark:text-slate-200 border-collapse`}>
-        <thead className={headClassName}>
-          <tr>
-            {columns.map((col) =>
-              col.sortable === false ? (
-                <StaticTh key={col.key} align={col.align}>
-                  {col.label}
-                </StaticTh>
-              ) : (
-                <SmartTh
-                  key={col.key}
-                  label={col.label}
-                  columnKey={col.key}
-                  currentKey={sort.key}
-                  currentDirection={sort.dir}
-                  onSort={toggle}
-                  align={col.align}
-                  className={`${pad} whitespace-nowrap`}
-                />
-              )
-            )}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
-          {sortedRows.length === 0 ? (
+      <div
+        ref={scrollContainerRef}
+        data-testid={`smart-table-scroll-viewport-${tableId}`}
+        className={scrollableViewportClassName}
+      >
+        <table className={`w-full min-w-max ${textSize} text-left text-slate-900 dark:text-slate-200 border-collapse`}>
+          <thead className={headClassName}>
             <tr>
-              <td colSpan={columns.length} className="py-8 text-center text-gray-400 italic">
-                {emptyMessage}
-              </td>
-            </tr>
-          ) : (
-            sortedRows.map((row, i) => (
-              <tr
-                key={rowKey ? rowKey(row, i) : i}
-                className={
-                  rowClassName?.(row, i) ??
-                  `hover:bg-blue-50/40 dark:hover:bg-slate-800/50 transition ${
-                    i % 2 === 0 ? 'bg-white dark:bg-slate-950' : 'bg-gray-50/40 dark:bg-slate-900/30'
-                  }`
-                }
-              >
-                {columns.map((col) => (
-                  <td
+              {columns.map((col, colIdx) => {
+                const stickyHeaderCls =
+                  stickyFirstColumn && colIdx === 0
+                    ? 'sticky left-0 z-30 bg-gray-100 dark:bg-slate-900 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.12)]'
+                    : '';
+                return col.sortable === false ? (
+                  <StaticTh key={col.key} align={col.align} className={stickyHeaderCls}>
+                    {col.label}
+                  </StaticTh>
+                ) : (
+                  <SmartTh
                     key={col.key}
-                    className={`${pad} whitespace-nowrap ${
-                      col.align === 'right' ? 'text-right font-mono' : col.align === 'center' ? 'text-center' : 'text-left'
-                    } ${col.className ?? ''}`}
-                  >
-                    {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '')}
-                  </td>
-                ))}
+                    label={col.label}
+                    columnKey={col.key}
+                    currentKey={sort.key}
+                    currentDirection={sort.dir}
+                    onSort={toggle}
+                    align={col.align}
+                    className={`${pad} whitespace-nowrap ${stickyHeaderCls}`}
+                  />
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+            {sortedRows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="py-8 text-center text-gray-400 italic">
+                  {emptyMessage}
+                </td>
               </tr>
-            ))
-          )}
-          {footerRows}
-        </tbody>
-      </table>
+            ) : (
+              sortedRows.map((row, i) => (
+                <tr
+                  key={rowKey ? rowKey(row, i) : i}
+                  className={
+                    rowClassName?.(row, i) ??
+                    `hover:bg-blue-50/40 dark:hover:bg-slate-800/50 transition ${
+                      i % 2 === 0 ? 'bg-white dark:bg-slate-950' : 'bg-gray-50/40 dark:bg-slate-900/30'
+                    }`
+                  }
+                >
+                  {columns.map((col, colIdx) => {
+                    const stickyCellCls =
+                      stickyFirstColumn && colIdx === 0
+                        ? `sticky left-0 z-20 ${
+                            i % 2 === 0 ? 'bg-white dark:bg-slate-950' : 'bg-gray-50 dark:bg-slate-900'
+                          } shadow-[2px_0_6px_-2px_rgba(0,0,0,0.12)]`
+                        : '';
+                    return (
+                      <td
+                        key={col.key}
+                        className={`${pad} whitespace-nowrap ${
+                          col.align === 'right'
+                            ? 'text-right font-mono'
+                            : col.align === 'center'
+                            ? 'text-center'
+                            : 'text-left'
+                        } ${stickyCellCls} ${col.className ?? ''}`}
+                      >
+                        {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '')}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+            )}
+            {footerRows}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

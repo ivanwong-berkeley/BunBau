@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.7 Implementation & Remediation Plan — Tax Data Partitioning, Line-Item Inspector & Contextual Danger Zone</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-purple: #9333ea;
+      --primary-amber: #f59e0b;
+      --primary-rose: #ef4444;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-top: 0;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-top: 36px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 16px 0 24px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-primary { background: #e0e7ff; color: #4338ca; }
+    .badge-mint { background: #d1fae5; color: #065f46; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-rose { background: #ffe4e6; color: #9f1239; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    .card-purple {
+      background: #faf5ff;
+      border-color: #d8b4fe;
+    }
+
+    .card-emerald {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+
+    .card-amber {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+
+    .card-blue {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    .mermaid {
+      margin: 24px 0;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <div style="font-weight: 700; color: #0f172a;">BunBau 資本寶 — Engineering Architecture</div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+      </svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v6.7 Implementation & Remediation Plan</h1>
+    <p style="font-size: 15px; color: var(--text-muted); margin-top: -8px;">
+      Granular Multi-Tenant Tax Data Partitioning, Line-Item Card Inspector, Symmetrical Loss Shield Strategies & Contextual Danger Zone Architecture
+    </p>
+
+    <div class="badge-bar">
+      <span class="badge badge-primary">Milestone v6.7</span>
+      <span class="badge badge-mint">Version 2.7.9</span>
+      <span class="badge badge-purple">Build 124</span>
+      <span class="badge badge-amber">Architecture v2.9.2</span>
+    </div>
+
+    <h2>1. Executive Summary & Defect Triangulation</h2>
+    <p>
+      Following in-depth visual and operational analysis of the 5 user-provided production screenshots, four systemic architectural and UX defects have been triangulated and prioritized for Milestone v6.7.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Production Defect</th>
+          <th>User Finding & Screenshot Ref</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td><strong>Demo Data & Live Uploads Mixed Up:</strong> "Alex Taylor + Jordan Taylor" hardcoded identities pollute live multi-year returns.</td>
+          <td>Screenshot 1 (<code>d962bc81</code>): Live mode (9 returns loaded) still prominently displays Taylor names across the Strategic Lifecycle Roadmap.</td>
+          <td><span class="badge badge-rose">Critical</span></td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td><strong>Modal Danger Zone Deletes Portfolio:</strong> Trash icon in Tax uploader prompts to "Delete the entire portfolio".</td>
+          <td>Screenshot 2 (<code>1f53c2af</code>): Clicking delete while managing taxes threatens user brokerage investments.</td>
+          <td><span class="badge badge-rose">Critical</span></td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td><strong>"Take Action" Disconnect & Missing Strategy Advice:</strong> Clicking Take Action on Suspended Passive Loss lands on page with no passive loss advice.</td>
+          <td>Screenshots 3 & 5 (<code>b96ee3fe</code>, <code>5d5e410a</code>): Top row has purple Suspended Loss card, but recommendations below only have Options and CD vs Muni Bond. Colors do not match.</td>
+          <td><span class="badge badge-amber">High</span></td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td><strong>Missing Line Item Card View:</strong> Multi-Year Audit table lacks interactive card inspector showing exact IRS line and page references.</td>
+          <td>Screenshot 4 (<code>2513af64</code>): Line Item view does not show card inspection modal; source PDF links scrolled off screen. Full PDF viewer must be preserved.</td>
+          <td><span class="badge badge-amber">High</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. Architecture & Remediation Flow</h2>
+    <div class="mermaid">
+      flowchart TD
+        subgraph Action_Router["Contextual Action Dispatch"]
+          A["TaxAnomalyBanner: Take Action"] -->|Target Action Key| B["TaxExpertView Action Router"]
+          B -->|SubTab + highlightedCardId| C["PortfolioTaxStrategyCard"]
+          B -->|SubTab + targetYear| D["TaxLifecycleTimeline"]
+        end
+
+        subgraph Strategy_Cards["Symmetrical 4-Card Strategy System"]
+          C --> S1["Card 1 (Emerald): Options Premium Neutralization"]
+          C --> S2["Card 2 (Purple): Suspended Passive Loss (Form 8582 / PIGs / §469g)"]
+          C --> S3["Card 3 (Amber): CD vs CA Municipal Bond Yield Arbitrage"]
+          C --> S4["Card 4 (Blue): Safe Harbor 110% & W-4 Line 4(c) Calibration"]
+        end
+
+        subgraph MultiYear_Card["Multi-Year Audit & Line Item Inspector"]
+          M1["Longitudinal Matrix Row Click"] --> M2["Line Item Card Inspector Modal"]
+          M2 --> M3["Exact IRS/CA Form, Line & Page Reference"]
+          M2 --> M4["Multi-Year Sparkline & Trend Metrics"]
+          M2 --> M5["One-Click PDF Deep-Link to DocumentViewer"]
+        end
+
+        subgraph Data_Partitioning["Strict Data & Identity Partitioning"]
+          U["Auth User / Uploaded Metadata"] -->|Resolve Live Identity| P["Live Taxpayer Profile"]
+          P -->|No Taylor Names| L["Lifecycle Planning Engine"]
+          L -->|Personalized Milestones| R["Strategic Lifecycle Roadmap"]
+          D1["Demo Mode"] -->|Isolated| D2["Alex & Jordan Taylor Mock Data"]
+        end
+
+        subgraph Danger_Zone["Context-Aware Deletion Engine"]
+          T["Modal Trash Icon Click"] -->|Check context & tab| G{"Is Tax Context?"}
+          G -->|Yes: context === 'tax' or tab === 'pdf'| H["TaxDeleteModal: Typed Year/Range Confirmation"]
+          G -->|No: context === 'portfolio'| I["DeleteDangerZone: Portfolio Wipe"]
+        end
+    </div>
+
+    <h2>3. Component Remediation Specifications</h2>
+
+    <h3>3.1 Symmetrical 4-Card Strategy System & Deep "Take Action" Linking</h3>
+    <div class="card card-purple">
+      <strong>Card 2: Suspended Passive Rental Loss Offset & Monetization Strategy (Form 8582)</strong>
+      <p style="margin: 8px 0 0 0; font-size: 13px;">
+        Matches top purple metric (<code>$44,500 Suspended Loss</code> from 742 Evergreen Terrace). Provides actionable advice on:
+        (1) <em>Passive Income Generators (PIGs)</em> to absorb losses 100% tax-free;
+        (2) <em>IRC §469(g) Qualifying Disposition</em> to unlock full $44,500 against ordinary income upon complete sale;
+        (3) <em>Modified AGI Management</em> to restore the $25,000 active rental allowance under $150k phase-out.
+      </p>
+    </div>
+    <div class="card card-blue">
+      <strong>Card 4: Federal Safe Harbor Prepayment & W-2 Withholding Calibration</strong>
+      <p style="margin: 8px 0 0 0; font-size: 13px;">
+        Matches blue Safe Harbor anomaly (<code>$51,062 remaining</code>). Details the 110% prior-year rule (IRC §6654(d)(1)(C)) and W-4 Line 4(c) catch-up extra withholding to retroactively cure early-quarter 1040-ES shortfalls and eliminate IRS Form 2210 penalties.
+      </p>
+    </div>
+
+    <h3>3.2 Interactive Line Item Card Inspector in Multi-Year Audit</h3>
+    <p>
+      In <code>LongitudinalComparisonCard.tsx</code>, clicking any line item row or the dedicated sticky <code>[Inspect Card]</code> icon on the line item column opens the <strong>Line Item Card Inspector</strong>:
+    </p>
+    <ul>
+      <li><strong>Form & Page Reference:</strong> Displays IRS Form, Line number, and Form Page (e.g. <code>Form 1040 Line 11, Page 1</code>).</li>
+      <li><strong>Multi-Year Progression Strip:</strong> Full historical matrix with annual values, YoY changes, and CAGR.</li>
+      <li><strong>Tax Insight:</strong> Explains statutory rules, MAGI interactions, IRMAA thresholds, and NIIT impacts.</li>
+      <li><strong>1-Click PDF Deep-Link:</strong> Direct jump button into <code>BunBauDocumentViewer</code> without touching or disrupting the full viewer.</li>
+    </ul>
+
+    <h3>3.3 Clean Multi-Tenant Data Partitioning & Identity Isolation</h3>
+    <p>
+      Eliminates all instances of "Alex Taylor" and "Jordan Taylor" from Live Mode. The application derives real taxpayer identities from <code>user.displayName</code> and uploaded return metadata. Synthetic demo identities are strictly confined to Demo Mode with an explicit <code>Tax Demo Mode</code> banner.
+    </p>
+
+    <h3>3.4 Contextual Danger Zone & Tax Deletion</h3>
+    <p>
+      In <code>UploadValidationModal.tsx</code>, when <code>context === 'tax'</code> or <code>activeTab === 'pdf'</code>, the trash button opens the granular tax deletion flow (<code>TaxDeleteModal.tsx</code>) requiring typed confirmations (<code>"Delete all tax history"</code>, <code>"Delete 2024 tax history"</code>, <code>"Delete from 2020 to 2025 history"</code>). The brokerage portfolio is 100% safeguarded from accidental deletion.
+    </p>
+
+    <h2>4. Phased Implementation Roadmap</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Scope & Target Files</th>
+          <th>Verification Deliverable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Phase 1</strong></td>
+          <td>Version Manifest Bump to 2.7.9 / Build 124 / v2.9.2 across <code>package.json</code>, <code>AboutModal.tsx</code>, <code>page.tsx</code>, and test guards.</td>
+          <td><code>tests/unit/tax/version_guard.test.ts</code> passes.</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 2</strong></td>
+          <td>Implement Symmetrical 4-Card Strategy system in <code>PortfolioTaxStrategyCard.tsx</code> and deep-link actions in <code>TaxAnomalyBanner.tsx</code>.</td>
+          <td>Visual color matching verified; clicking Take Action scrolls and highlights target card.</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 3</strong></td>
+          <td>Build Line Item Card Inspector modal and sticky inspect button in <code>LongitudinalComparisonCard.tsx</code>.</td>
+          <td>Clicking row opens rich card; 1-click jump opens DocumentViewer at exact page.</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 4</strong></td>
+          <td>Parameterize <code>seedData.ts</code>, update <code>TaxContext.tsx</code>, and eliminate Taylor names from Live Mode.</td>
+          <td>Live Mode shows user's actual name; Demo Mode isolated.</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 5</strong></td>
+          <td>Make Danger Zone context-aware in <code>UploadValidationModal.tsx</code>; route tax deletes to <code>TaxDeleteModal</code>.</td>
+          <td>Tax delete requires typed phrase; portfolio untouched.</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 6</strong></td>
+          <td>Automated test suite (<code>tax_data_partitioning_and_actions.test.ts</code>), full regression (99+ test files), and Next.js 15 production build.</td>
+          <td>100% tests green; 0 compilation errors across 16 routes.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f1f5f9; border-radius: 16px; text-align: center; font-size: 13px; color: var(--text-muted);">
+      BunBau (資本寶) — Personal Portfolio & Tax Intelligence Platform • Milestone v6.7
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+</body>
+</html>

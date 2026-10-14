@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.6 Release Report — Universal Multi-Modal Tax & Portfolio Ingestion Architecture</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    .meta-box {
+      background: #f1f5f9;
+      border-left: 4px solid var(--primary-mint);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .meta-item strong {
+      color: #334155;
+    }
+
+    .arch-banner {
+      grid-column: span 2;
+      background: #ffffff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--primary-violet);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      font-size: 14px;
+      color: #334155;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .badge-success {
+      background: #dcfce7;
+      color: #166534;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    .badge-blue {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    .badge-purple {
+      background: #f3e8ff;
+      color: #6b21a8;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 11px;
+      display: inline-block;
+    }
+
+    .callout {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-size: 13px;
+      color: #1e40af;
+    }
+
+    .quote-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary-violet);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-style: italic;
+      color: #475569;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      body { background: white; }
+      .container { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+      <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px;">v6.6</span>
+      <span>BunBau Release Verification Report</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      🖨️ Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v6.6 Release Report</h1>
+    <div class="subtitle">Universal Multi-Modal Tax &amp; Portfolio Ingestion Architecture (PDF, CSV, Vision)</div>
+
+    <div class="meta-box">
+      <div class="meta-item"><strong>Release Date:</strong> October 12, 2026</div>
+      <div class="meta-item"><strong>Milestone:</strong> v6.6</div>
+      <div class="meta-item"><strong>Application Version:</strong> 2.7.8</div>
+      <div class="meta-item"><strong>Build Number:</strong> Build 123</div>
+      <div class="arch-banner">
+        Architecture: v2.9.1 Universal Multi-Modal Tax &amp; Portfolio Ingestion Architecture (PDF, CSV, Vision)
+      </div>
+    </div>
+
+    <div class="quote-box">
+      "You also need to update the application version/build/architecture version for every iteration build."
+    </div>
+
+    <h2>1. Executive Summary &amp; Problem Resolution</h2>
+    <p>
+      Milestone <strong>v6.6</strong> resolves the critical UX and architectural mismatches on the Tax Expert page by delivering a smart, context-aware upload engine across both primary ingestion entry points:
+    </p>
+    <ul>
+      <li>
+        <strong>Upload Panel Mismatch Resolved (<code>UploadValidationModal.tsx</code>):</strong>
+        Context awareness (<code>context="tax"</code>) dynamically brands the modal as <em>"Tax Return &amp; Portfolio Ingestion"</em> and introduces a 3-way top tab ribbon with a dedicated <code>[📄 PDF Upload (Tax Returns)]</code> tab set as the default on the Tax Expert page.
+      </li>
+      <li>
+        <strong>Strict Per-Tab File Type Enforcement:</strong>
+        CSV file inputs now strictly accept <code>.csv, .tsv, .ofx, .xlsx, .xls</code>. Dropping a PDF into the CSV tab instantly warns the user with a redirect notice: <em>"Tax return PDF detected! Switch to the 'PDF Upload' tab to ingest Form 1040/540 returns."</em> Tax return PDFs are never mislabeled as CSVs or sent to an empty holdings table.
+      </li>
+      <li>
+        <strong>Parsed Tax Filings Overview:</strong>
+        When <code>activeTab === 'pdf'</code>, the right panel replaces empty brokerage holdings with a rich Tax Filings Overview featuring multi-year summaries, in-memory SSN masking confirmation, and an instant <code>Verify &amp; Ingest Tax Filings</code> button.
+      </li>
+      <li>
+        <strong>Universal Multi-Modal Tax Uploader (<code>TaxMultiUploaderModal.tsx</code>):</strong>
+        Accepts PDF returns, 1099/Schedule D CSVs, and W-2/1099 image scans with format filters (<code>[All]</code>, <code>[PDFs]</code>, <code>[CSVs]</code>, <code>[Scans]</code>) and badges (<span class="badge-success">PDF</span>, <span class="badge-blue">CSV</span>, <span class="badge-purple">IMG</span>).
+      </li>
+    </ul>
+
+    <h2>2. Key Architectural Deliverables</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Pillar</th>
+          <th>Component</th>
+          <th>Delivered Capability</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Context-Aware Ingestion</strong></td>
+          <td><code>UploadValidationModal.tsx</code></td>
+          <td><code>context?: 'portfolio' | 'tax'</code>, <code>initialTab?: 'pdf' | 'csv' | 'vision'</code>, title adaptability, 3 top tabs.</td>
+        </tr>
+        <tr>
+          <td><strong>Strict Type Enforcement</strong></td>
+          <td><code>UploadValidationModal.tsx</code></td>
+          <td>Strict per-tab file filtering, redirect alert on PDF dropped in CSV tab, removed <code>.pdf</code> from CSV file input accept.</td>
+        </tr>
+        <tr>
+          <td><strong>Parsed Tax Overview</strong></td>
+          <td><code>UploadValidationModal.tsx</code></td>
+          <td>Replaced empty holdings table with comprehensive Tax Filings Overview, staged returns table using <code>&lt;StaticTh&gt;</code>, and <code>importTaxReturnsBatch</code> integration.</td>
+        </tr>
+        <tr>
+          <td><strong>Universal Multi-Modal Uploader</strong></td>
+          <td><code>TaxMultiUploaderModal.tsx</code></td>
+          <td>Multi-modal ingestion of PDF, CSV, and image scans; format selector filter tabs (All, PDFs, CSVs, Scans); color badges (PDF, CSV, IMG).</td>
+        </tr>
+        <tr>
+          <td><strong>Tax Context Hook &amp; Alias</strong></td>
+          <td><code>TaxContext.tsx</code></td>
+          <td>Exported <code>useTaxContext</code> alias for seamless usage across portfolio and tax components.</td>
+        </tr>
+        <tr>
+          <td><strong>Page Wire-Up</strong></td>
+          <td><code>page.tsx</code></td>
+          <td>Passed <code>context={activeTab === 'tax' ? 'tax' : 'portfolio'}</code> and <code>initialTab={activeTab === 'tax' ? 'pdf' : 'csv'}</code> to <code>UploadValidationModal</code>.</td>
+        </tr>
+        <tr>
+          <td><strong>Standard UX Compliance</strong></td>
+          <td>All Components</td>
+          <td>Zero raw <code>&lt;th&gt;</code> tags. All tables use <code>&lt;StaticTh&gt;</code> from <code>common/SortableHeader</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Verification &amp; Regression Metrics</h2>
+    <div class="callout">
+      <strong>Verification Summary:</strong> All 99 test suites passed with 100% green status (557/557 tests). Production Next.js 15 build completed cleanly with 0 errors across 16 routes.
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Suite / Gate</th>
+          <th>Command</th>
+          <th>Result</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Universal Ingestion Suite</td>
+          <td><code>npm test tests/unit/tax/universal_upload_modal.test.ts</code></td>
+          <td>16 passed, 0 failed (12ms)</td>
+          <td><span class="badge-success">PASS</span></td>
+        </tr>
+        <tr>
+          <td>Standard UX Guard</td>
+          <td><code>npm test tests/unit/standard_ux_guard.test.ts</code></td>
+          <td>3 passed, 0 failed (32ms)</td>
+          <td><span class="badge-success">PASS</span></td>
+        </tr>
+        <tr>
+          <td>Version Guard Suite</td>
+          <td><code>npm test tests/unit/tax/version_guard.test.ts</code></td>
+          <td>4 passed, 0 failed (8ms)</td>
+          <td><span class="badge-success">PASS</span></td>
+        </tr>
+        <tr>
+          <td>Full Application Regression</td>
+          <td><code>npm test</code></td>
+          <td>99 test files passed, 557/557 tests green</td>
+          <td><span class="badge-success">PASS</span></td>
+        </tr>
+        <tr>
+          <td>Next.js Production Build</td>
+          <td><code>npm run build</code></td>
+          <td>16/16 routes compiled, 0 compile errors</td>
+          <td><span class="badge-success">PASS</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Version Manifest Alignment</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Target</th>
+          <th>Parameter</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>package.json</code></td>
+          <td><code>version</code></td>
+          <td><code>2.7.8</code></td>
+        </tr>
+        <tr>
+          <td><code>AboutModal.tsx</code></td>
+          <td>Application Version</td>
+          <td><code>2.7.8</code></td>
+        </tr>
+        <tr>
+          <td><code>AboutModal.tsx</code></td>
+          <td>Architecture</td>
+          <td><code>v2.9.1 Universal Multi-Modal Tax &amp; Portfolio Ingestion Architecture (PDF, CSV, Vision)</code></td>
+        </tr>
+        <tr>
+          <td><code>page.tsx</code></td>
+          <td>Footer Badge</td>
+          <td><code>v2.7.8 (Build 123)</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted);">
+      <div>BunBau Personal Portfolio Intelligence — Milestone v6.6</div>
+      <div>Zero Raw &lt;th&gt; Compliant • Build 123</div>
+    </div>
+  </div>
+
+</body>
+</html>

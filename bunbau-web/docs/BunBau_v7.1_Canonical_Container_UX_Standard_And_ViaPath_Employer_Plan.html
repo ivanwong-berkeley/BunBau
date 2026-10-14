@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v7.1 Implementation Plan — Zero-Bleed Data Partitioning & Universal Canonical Container UX Standardization</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #7c3aed;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+    }
+
+    .metadata-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metadata-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .metadata-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+    }
+
+    .box-quote {
+      background: #f1f5f9;
+      border-left: 4px solid #8b5cf6;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #334155;
+      margin: 16px 0;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    ul, ol {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: #ffffff;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    @media print {
+      .toolbar {
+        display: none;
+      }
+      body {
+        background: #ffffff;
+      }
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div>
+      <strong style="color: #0f172a;">BunBau Financial Intelligence Architecture</strong>
+      <span style="color: #64748b; font-size: 13px; margin-left: 8px;">Implementation Plan v7.1 (Build 128)</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+      </svg>
+      Print to PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v7.1 Implementation Plan</h1>
+    <div style="font-size: 16px; color: #64748b; font-weight: 500;">
+      Airtight Live-vs-Demo Zero-Bleed Data Partitioning &amp; Universal Canonical Container UX Standardization Architecture
+    </div>
+
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <span class="metadata-label">Milestone Designation</span>
+        <span class="metadata-value">v7.1</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Application Version</span>
+        <span class="metadata-value">2.7.13 (Build 128)</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Architecture Version</span>
+        <span class="metadata-value">v2.9.6 Airtight Live-vs-Demo Zero-Bleed Data Partitioning &amp; Universal Canonical Container UX Standardization Architecture</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Plan Status</span>
+        <span class="metadata-value"><span class="badge-status">Pending User Approval</span></span>
+      </div>
+    </div>
+
+    <div class="box-quote">
+      "You also need to update the application version/build/architecture version for every iteration build."
+    </div>
+
+    <h2>1. Forensic Codebase Audit: 8 Demo Data Infiltration Vectors</h2>
+    <p>
+      Our forensic audit mapped the exact lines where synthetic demo data (Alex &amp; Jordan Taylor, Pacific Cloud Systems, 742 Evergreen Terrace) polluted Live User Mode:
+    </p>
+    <ul>
+      <li><strong>TaxProfileHelper.ts (Lines 151 &amp; 200):</strong> Started from <code>{ ...DEMO_TAX_FILING_PROFILE }</code>, hardcoding <code>Pacific Cloud Systems Inc.</code> for spouse.</li>
+      <li><strong>HybridRetriever.ts (Line 39) &amp; TaxPortfolioChunker.ts (Line 22):</strong> RAG defaulted to <code>[TAX_RETURN_2024, TAX_RETURN_2025]</code> (Taylor demo returns).</li>
+      <li><strong>ProactiveTaxChatDrawer.tsx &amp; /api/v1/tax/chat:</strong> Called RAG without passing user returns, grounding AI advice in demo Taylor facts.</li>
+      <li><strong>TaxContext.tsx (Lines 98-101 &amp; 109-111):</strong> Spread demo returns when years were unpopulated in Live Mode.</li>
+      <li><strong>PortfolioTaxStrategyCard.tsx (Lines 163 &amp; 170):</strong> Hardcoded <code>742 Evergreen Terrace</code> in passive loss cards.</li>
+      <li><strong>TaxMemoryInspectorModal.tsx (Line 17):</strong> Defaulted facts to synthetic Taylor facts (<code>INITIAL_USER_TAX_FACTS</code>).</li>
+      <li><strong>TaxPreImportReviewModal.tsx (Line 19):</strong> Defaulted to demo returns.</li>
+      <li><strong>LifecyclePlanningEngine.ts (Line 14 &amp; 31):</strong> Default parameter defaulted to demo returns.</li>
+    </ul>
+
+    <h2>2. Universal BunBau Canonical Container UX Standard</h2>
+    <p>
+      Every container, card, modal, and page across Tax Expert will systematically enforce the 4-pillar UX contract:
+    </p>
+    <ol>
+      <li><strong>Information Icon Explainer <code>((i))</code>:</strong> Interactive popover explaining statutory definitions (IRC §62, §469, §1212, §6654, §2210, SECURE 2.0 §107) and fiduciary rationale.</li>
+      <li><strong>Visual Chart vs. Tabular Numbers Toggle:</strong> Intuitive switching between visual graphics (bar charts, milestone scrubbers, gauges) and structured tabular rows (SmartTable, breakdown matrices).</li>
+      <li><strong>One-Click Action Item Copy:</strong> Dedicated copy button on all actionable guidance, milestone cards, and portfolio strategies with instant 2-second "Copied!" feedback.</li>
+      <li><strong>Accessibility Zoom Compliance:</strong> Canonical <code>AccessibilityZoomBar</code> integration with font scaling and scale resets.</li>
+    </ol>
+
+    <h2>3. Container-by-Container Standardization Specification</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Container / Module</th>
+          <th>Explainer ((i))</th>
+          <th>Chart / Table Toggle</th>
+          <th>One-Click Copy</th>
+          <th>Data Isolation Fix</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Overview KPIs</strong></td>
+          <td>IRC §62, tax bracket math</td>
+          <td>KPI cards vs. 2025/2024 Bar Chart</td>
+          <td>Copy KPI summary</td>
+          <td>Zero demo fallback; pure live returns</td>
+        </tr>
+        <tr>
+          <td><strong>Lifecycle Roadmap</strong></td>
+          <td>CFA/CPA milestone rules</td>
+          <td>Timeline scrubber vs. Roadmap Table</td>
+          <td>Copy All + Per-milestone copy</td>
+          <td><strong>ViaPath Technologies inc.</strong> for Ivan</td>
+        </tr>
+        <tr>
+          <td><strong>Social Security Planner</strong></td>
+          <td>SSA earnings test ($23,400)</td>
+          <td>Benefit bars vs. Payout table</td>
+          <td>Copy strategy button</td>
+          <td>Earner W-2 wages from live return</td>
+        </tr>
+        <tr>
+          <td><strong>Medicare Health Plan</strong></td>
+          <td>IEP window &amp; Part B delay</td>
+          <td>Scenario cards vs. Matrix table</td>
+          <td>Copy coordination plan</td>
+          <td><strong>ViaPath Technologies inc.</strong> group coverage</td>
+        </tr>
+        <tr>
+          <td><strong>IRMAA Cliff Monitor</strong></td>
+          <td>2-Yr lookback &amp; MAGI cliff</td>
+          <td>Threshold gauge vs. Bracket table</td>
+          <td>Copy IRMAA advice</td>
+          <td>Actual MAGI from live return</td>
+        </tr>
+        <tr>
+          <td><strong>RMD &amp; Roth Valley</strong></td>
+          <td>SECURE 2.0 Age 75 RMD</td>
+          <td>Conversion cards vs. Depletion table</td>
+          <td>Copy conversion plan</td>
+          <td>Uses live taxpayer ages</td>
+        </tr>
+        <tr>
+          <td><strong>9-Yr Longitudinal Audit</strong></td>
+          <td>9-Yr trend math &amp; CAGR</td>
+          <td>Matrix Table vs. Macro charts</td>
+          <td>Copy audit summary</td>
+          <td>Pure live returns</td>
+        </tr>
+        <tr>
+          <td><strong>Inspector Modal (AGI)</strong></td>
+          <td>Line item &amp; IRS form citation</td>
+          <td>9-Yr grid vs. 9-Yr trend chart</td>
+          <td>Copy analysis button</td>
+          <td>Dynamic PDF deep links</td>
+        </tr>
+        <tr>
+          <td><strong>Portfolio Tax Strategy</strong></td>
+          <td>Schedule B/D/E tax shields</td>
+          <td>Strategy cards vs. Waterfall chart</td>
+          <td>Copy button on ALL 4 cards</td>
+          <td>Purged 742 Evergreen; live property</td>
+        </tr>
+        <tr>
+          <td><strong>Persistent Tax Memory</strong></td>
+          <td>RAG memory grounding</td>
+          <td>Fact cards vs. Category table</td>
+          <td>Copy facts button</td>
+          <td>Purged demo facts in Live Mode</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Multi-Phase Implementation Plan</h2>
+    <div class="card">
+      <div class="card-title">Phase 1: Airtight Zero-Bleed Data Partitioning &amp; W-2 Employer Resolution</div>
+      <p>Clean profile construction from <code>createEmptyTaxpayerProfile()</code>. Dynamically resolve <code>ViaPath Technologies inc.</code> for Ivan Wong. Purge <code>Pacific Cloud Systems Inc.</code> and <code>742 Evergreen Terrace</code> from all live components.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 2: Overview KPI Cards Standard UX (Chart/Table Toggle, Info, Copy)</div>
+      <p>Interactive 2025 vs. 2024 comparative bar chart, Info popovers on each metric, and one-click copy of executive summary.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 3: Strategic Lifecycle Roadmap &amp; Forward-Looking Cards UX Standardization</div>
+      <p>Lifecycle Roadmap timeline vs. table toggle, container copy + per-milestone copy buttons, and UX standardization of Social Security, Medicare, IRMAA, and RMD cards.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 4: Multi-Year Longitudinal Audit &amp; Line-Item Inspector Modal</div>
+      <p>Add 9-year historical trend chart toggle and analysis copy to line-item inspector modal. Add container copy and Info popover.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 5: Active Portfolio Tax Drag &amp; Loss Shield Strategy</div>
+      <p>Loss Shield Waterfall chart toggle and dedicated copy buttons on all 4 strategy cards.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 6: Persistent Tax Memory &amp; AI Copilot Grounding Fix</div>
+      <p>Pass live tax returns to RAG retriever in <code>ProactiveTaxChatDrawer</code> and <code>/api/v1/tax/chat</code>, ensuring AI chat answers are grounded in real user returns.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 7: Version Synchronization, Regression Testing &amp; Production Build</div>
+      <p>Synchronize to version <code>2.7.13 (Build 128)</code> and architecture <code>v2.9.6</code>. Execute 106+ unit test suites (100% green) and compile Next.js 15 production build.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

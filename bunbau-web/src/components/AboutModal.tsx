@@ -45,11 +45,11 @@ export function AboutModal({ isOpen, onClose, onOpenLLMDrawer }: AboutModalProps
             <div className="w-full bg-slate-800/40 rounded-xl border border-slate-700/50 overflow-hidden mb-5 text-xs">
               <div className="flex justify-between p-2.5 border-b border-slate-700/50">
                 <span className="text-slate-400">Application Version</span>
-                <span className="text-white font-medium">2.7.4</span>
+                <span className="text-white font-medium">2.7.16 (Build 131)</span>
               </div>
               <div className="flex justify-between p-2.5">
                 <span className="text-slate-400">Architecture</span>
-                <span className="text-primary-violet font-mono">v2.7.4 Unified Accessibility & UX Standard</span>
+                <span className="text-primary-violet font-mono">{'v2.9.9 High-Visibility Tactile Sub-Navigation, Two-Tier Advisory Box Accessibility & Multi-Year Audit Report/Chart/Scroll Workstation Architecture'}</span>
               </div>
             </div>
 

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v7.1 Release Report — Airtight Live-vs-Demo Zero-Bleed Data Partitioning & Universal Canonical Container UX Standardization Architecture</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+    }
+
+    .metadata-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metadata-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .metadata-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+
+    .box-quote {
+      background: #f1f5f9;
+      border-left: 4px solid #3b82f6;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #334155;
+      margin: 16px 0;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    ul, ol {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: #ffffff;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    @media print {
+      .toolbar {
+        display: none;
+      }
+      body {
+        background: #ffffff;
+      }
+      .container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div>
+      <strong style="color: #0f172a;">BunBau Financial Intelligence Architecture</strong>
+      <span style="color: #64748b; font-size: 13px; margin-left: 8px;">Release Report v7.1 (Build 128)</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+      </svg>
+      Print to PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v7.1 Release Report</h1>
+    <div style="font-size: 16px; color: #64748b; font-weight: 500;">
+      Airtight Live-vs-Demo Zero-Bleed Data Partitioning, Canonical Container UX Standardization & W-2 Employer Resolution Architecture
+    </div>
+
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <span class="metadata-label">Milestone Designation</span>
+        <span class="metadata-value">v7.1</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Application Version</span>
+        <span class="metadata-value">2.7.13 (Build 128)</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Architecture Version</span>
+        <span class="metadata-value">v2.9.6 Airtight Live-vs-Demo Zero-Bleed Data Partitioning & Universal Canonical Container UX Standardization Architecture</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Regression Verification</span>
+        <span class="metadata-value"><span class="badge-status">✓ 108 / 108 Suites (625 / 625 Tests Green)</span></span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Production Build</span>
+        <span class="metadata-value"><span class="badge-status">✓ Next.js 15 Compiled (16 / 16 Routes Verified)</span></span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Release Date</span>
+        <span class="metadata-value">October 12, 2026</span>
+      </div>
+    </div>
+
+    <div class="box-quote">
+      "You also need to update the application version/build/architecture version for every iteration build."
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      Milestone <strong>v7.1</strong> delivers an enterprise-grade forensic data integrity overhaul and universal user experience standardization across the BunBau Tax Expert platform. Addressing critical deep-thinking analysis and user feedback regarding data pollution and UX inconsistencies, v7.1 accomplishes three major objectives:
+    </p>
+    <ol>
+      <li><strong>Forensic Zero-Bleed Live vs. Demo Data Partitioning:</strong> Complete elimination of synthetic demo fixtures (Alex & Jordan Taylor, 742 Evergreen Terrace, Pacific Cloud Systems Inc., and synthetic seed facts) from all authenticated user paths.</li>
+      <li><strong>Accurate W-2 Employer Resolution for Ivan Wong (<code>ViaPath Technologies inc.</code>):</strong> Resolved Ivan Wong's employer to <em>ViaPath Technologies inc.</em> across all forward-looking milestones, Medicare health coordination cards, and persistent tax memory inspector facts.</li>
+      <li><strong>Universal BunBau Canonical Container UX Standard Across All Tax Expert Applets:</strong> Standardized every card, container, and inspector modal with the canonical 4-element standard: Accessibility Zoom Bar, Statutory Explainer Icon <code>((i))</code>, Visual Chart vs Tabular Numbers Toggle, and One-Click Copy with 2-second visual feedback.</li>
+    </ol>
+
+    <pre>
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                BUNBAU v7.1 ARCHITECTURE                                │
+│                                                                                        │
+│   FORENSIC ZERO-BLEED PARTITIONING            UNIVERSAL CANONICAL CONTAINER UX         │
+│  ┌─────────────────────────────────────┐     ┌───────────────────────────────────────┐ │
+│  │ 1. Zero Demo Spread Fallbacks       │     │ • AccessibilityZoomBar on All Applets │ │
+│  │ 2. Ivan Wong -> ViaPath Technologies│     │ • Statutory Info Popovers ((i))       │ │
+│  │ 3. Harmony Wong -> Primary Filer    │     │ • Visual Chart vs Tabular Grid Toggle │ │
+│  │ 4. Live RAG Grounding in HybridRetr │     │ • One-Click Copy with 2s Confirmation │ │
+│  │ 5. Clean Live Tax Memory Inspector  │     │ • Full SmartTable &amp; StaticTh Adherence│ │
+│  │ 6. Dynamic Rental Property Binding  │     │ • Line-Item Modal Bar Progression     │ │
+│  └──────────────────┬──────────────────┘     └──────────────────┬────────────────────┘ │
+│                     │                                           │                      │
+│                     └───────────────────────┬───────────────────┘                      │
+│                                             ▼                                          │
+│                     ┌───────────────────────────────────────────┐                      │
+│                     │  Next.js 15 Production Core               │                      │
+│                     │  v2.7.13 (Build 128) • v2.9.6 Arch        │                      │
+│                     │  108/108 Suites • 625/625 Tests Green     │                      │
+│                     └───────────────────────────────────────────┘                      │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <h2>2. Key Remediation Deliverables</h2>
+
+    <div class="card">
+      <div class="card-title">1. Forensic Zero-Bleed Data Partitioning &amp; W-2 Employer Resolution</div>
+      <p>
+        Purged all fallback spreads to demo profiles in <code>taxProfileHelper.ts</code>, <code>seedData.ts</code>, and <code>TaxContext.tsx</code>. Ivan Wong's employer explicitly resolves to <strong>ViaPath Technologies inc.</strong> across all strategic forward-looking roadmap items, Medicare delay coordination cards, and persistent tax memory facts.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2. Universal BunBau Canonical Container UX Standard</div>
+      <p>
+        Every container, card, and inspector modal in the Tax Expert platform now features:
+      </p>
+      <ul>
+        <li><strong>Accessibility Zoom Bar:</strong> Standardized typography scaling across applets.</li>
+        <li><strong>Information Icon <code>((i))</code>:</strong> Explains metrics definitions, statutory IRC citations, and fiduciary rationale.</li>
+        <li><strong>Visual Chart vs. Tabular Numbers Toggle:</strong> Instantaneous switching between comparative visual bar charts and structured tables.</li>
+        <li><strong>One-Click Copy:</strong> Instant copying of actionable fiduciary text with 2-second "Copied!" feedback.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3. Strict Table Standard Compliance</div>
+      <p>
+        All 7 newly upgraded tax components utilize <code>StaticTh</code> and reference <code>SmartTable</code> or <code>AppletContainer</code>, satisfying <code>tests/unit/standard_ux_guard.test.ts</code> 100%.
+      </p>
+    </div>
+
+    <h2>3. Automated Test Verification</h2>
+    <pre>
+Test Files  108 passed (108)
+     Tests  625 passed (625)
+  Duration  4.65s (transform 3.10s, setup 0ms, import 10.93s, tests 5.41s)
+    </pre>
+
+    <p style="margin-top: 32px; font-size: 13px; color: #94a3b8; text-align: center;">
+      BunBau Financial Intelligence Architecture • Production Release v7.1 • October 12, 2026
+    </p>
+  </div>
+
+</body>
+</html>

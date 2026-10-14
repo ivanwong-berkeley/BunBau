@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v7.2 Release Report — Dedicated Single-Form Item Inspector, Pure Dynamic Schedule E Real Property Extraction & Original Uploaded PDF Workstation</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    .quote-box {
+      border-left: 4px solid var(--primary-violet);
+      background-color: #f5f3ff;
+      padding: 14px 20px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #4c1d95;
+      margin: 20px 0;
+      font-size: 15px;
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+    }
+
+    .metadata-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metadata-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .metadata-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      margin-top: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: #f8fafc;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .badge-success {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    .badge-violet {
+      background: #f3e8ff;
+      color: #7e22ce;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 12px;
+      display: inline-block;
+    }
+
+    code {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 12px 0;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+      background: #ffffff;
+    }
+
+    .card-title {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      .container { border: none; box-shadow: none; padding: 0; margin: 0; max-width: 100%; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+      <span>BunBau Engineering Release Manifest — Milestone v7.2</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+      </svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau Milestone v7.2 Release Report</h1>
+    <div style="font-size: 16px; color: var(--text-muted); font-weight: 500;">
+      Dedicated Single-Form Item Inspector, Pure Dynamic Schedule E Real Property Extraction & Original Uploaded PDF Workstation
+    </div>
+
+    <div class="quote-box">
+      "You also need to update the application version/build/architecture version for every iteration build."
+    </div>
+
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <span class="metadata-label">Application Version</span>
+        <span class="metadata-value">2.7.14</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Build Identification</span>
+        <span class="metadata-value">Build 129</span>
+      </div>
+      <div class="metadata-item" style="grid-column: span 2;">
+        <span class="metadata-label">Architecture Designation</span>
+        <span class="metadata-value">v2.9.7 Dedicated Single-Form Item Inspector, Pure Dynamic Schedule E Real Property Extraction & Original Uploaded PDF Workstation Architecture</span>
+      </div>
+      <div class="metadata-item" style="grid-column: span 2;">
+        <span class="metadata-label">Verification Status</span>
+        <span class="metadata-value"><span class="badge-success">100% Automated Test Suite Passing (111 / 111 Suites, 642 / 642 Tests, 0 Regressions)</span></span>
+      </div>
+    </div>
+
+    <h2>1. Executive Summary & Root Cause Resolutions</h2>
+
+    <div class="card">
+      <div class="card-title">
+        <span class="badge-violet">Issue 1 Resolved</span>
+        <span>Dedicated Single-Form Item Inspector & Schedule Routing</span>
+      </div>
+      <p><strong>Defect:</strong> Clicking <code>[Inspect]</code> in the 9-Year Longitudinal Tax Trajectory (2016–2025) routed all tax items to Schedule B, where an un-indexed branch in <code>BunBauDocumentViewer.tsx</code> erroneously rendered Schedule E rental real estate. Users were subjected to a 52-page endless scroll to locate targeted items.</p>
+      <p><strong>Solution:</strong></p>
+      <ul>
+        <li>Authored <code>TaxSingleFormViewer.tsx</code>: Dedicated standalone single-form sheet viewer providing authentic isolated views for <code>1040_p1</code>, <code>1040_p2</code>, <code>schedule_b</code>, <code>schedule_d</code>, <code>schedule_e</code>, <code>form_8582</code>, and <code>ca_540</code> with glowing highlighted line items.</li>
+        <li>Schedule B now displays strictly 1099-INT and 1099-DIV receipts with <strong>zero Schedule E rental property bleed</strong>.</li>
+        <li>Deep linking in <code>LongitudinalComparisonCard.tsx</code> directs each matrix item to its exact statutory schedule.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span class="badge-violet">Issue 1 Enhancement</span>
+        <span>Dedicated Authentic Uploaded PDF Workstation</span>
+      </div>
+      <p><strong>Requirement:</strong> Provide a dedicated viewer for the authentic 52-page uploaded tax return PDF with comprehensive document controls, referencing the pre-upload validation workflow.</p>
+      <p><strong>Solution:</strong></p>
+      <ul>
+        <li>Authored <code>OriginalTaxPdfViewerModal.tsx</code> equipped with multi-year dropdown (2016–2025), canonical <code>AccessibilityZoomBar</code> (0.7x to 1.5x), Print, Download, Page Jump input (Page X of 52), and SHA-256 metadata inspection modal.</li>
+        <li>Implemented Detached Full-Screen Portal Mode via <code>createPortal(..., document.body)</code> with <code>z-[100]</code> to guarantee zero sidebar overlap or viewport clipping.</li>
+        <li>Surfaced prominent <code>[View Original Uploaded PDF (Full Report)]</code> buttons across the line-item inspector modal, the single-form sheet viewer toolbar, and the Document Vault workspace toolbar.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span class="badge-violet">Issue 2 Resolved</span>
+        <span>Pure Dynamic Schedule E Real Property Extraction & Zero Hardcoding Guarantee</span>
+      </div>
+      <p><strong>Requirement:</strong> Completely eliminate synthetic mock data (e.g. <code>742 Evergreen Terrace</code>). Bind rental real estate dynamically to <code>taxReturn.federal.rentalProperties</code> (e.g. <code>3343 Los Prados, San Mateo, CA 94403</code>) with <strong>zero hardcoded addresses</strong> in application components.</p>
+      <p><strong>Solution:</strong></p>
+      <ul>
+        <li>AST and string verification guards confirm <strong>zero hardcoded addresses</strong> in UI component code.</li>
+        <li><code>TaxSingleFormViewer.tsx</code> and <code>OriginalTaxPdfViewerModal.tsx</code> bind dynamically to <code>taxReturn.federal.rentalProperties.map(...)</code>, showing clean empty states when no rental property is reported.</li>
+        <li>Purged legacy mock addresses from <code>seedData.ts</code> and wired runtime migration sanitizer <code>sanitizeStoredTaxReturn()</code> in <code>taxStore.ts</code> to cleanse legacy stored records on hydration.</li>
+      </ul>
+    </div>
+
+    <h2>2. Key Files Created & Modified</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Subsystem</th>
+          <th>File Path</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Single Form Viewer</strong></td>
+          <td><code>src/components/tax/TaxSingleFormViewer.tsx</code></td>
+          <td>Dedicated isolated form sheet viewer for 1040 p1/p2, Sched B/D/E, Form 8582, CA 540.</td>
+        </tr>
+        <tr>
+          <td><strong>Original PDF Workstation</strong></td>
+          <td><code>src/components/tax/OriginalTaxPdfViewerModal.tsx</code></td>
+          <td>Full authentic PDF report workstation with cross-year switcher, zoom bar, print, download, detached portal.</td>
+        </tr>
+        <tr>
+          <td><strong>Longitudinal Inspector</strong></td>
+          <td><code>src/components/tax/LongitudinalComparisonCard.tsx</code></td>
+          <td>Target schedule deep links and [View Original Return PDF] launcher.</td>
+        </tr>
+        <tr>
+          <td><strong>Tax Expert View</strong></td>
+          <td><code>src/components/tax/TaxExpertView.tsx</code></td>
+          <td>Workspace 4 single_form vs full_vault toggle and modal wiring.</td>
+        </tr>
+        <tr>
+          <td><strong>Store & Seed Data</strong></td>
+          <td><code>src/lib/tax/seedData.ts</code>, <code>src/lib/tax/taxStore.ts</code></td>
+          <td>Zero-bleed dynamic extraction and storage sanitizer.</td>
+        </tr>
+        <tr>
+          <td><strong>Version Manifests</strong></td>
+          <td><code>package.json</code>, <code>AboutModal.tsx</code>, <code>page.tsx</code></td>
+          <td>Bumped to Version 2.7.14, Build 129, Architecture v2.9.7.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Automated Test Verification & Regression Safeguards</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Test Suite</th>
+          <th>Tests Passing</th>
+          <th>Coverage & Verification Focus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>single_form_inspector_routing.test.ts</code></td>
+          <td><span class="badge-success">7 / 7 Passing</span></td>
+          <td>Target form routing without Schedule E bleed in Schedule B.</td>
+        </tr>
+        <tr>
+          <td><code>dynamic_property_extraction.test.ts</code></td>
+          <td><span class="badge-success">5 / 5 Passing</span></td>
+          <td>Zero hardcoded addresses; pure dynamic Schedule E extraction.</td>
+        </tr>
+        <tr>
+          <td><code>original_pdf_workstation.test.ts</code></td>
+          <td><span class="badge-success">5 / 5 Passing</span></td>
+          <td>Original PDF launcher buttons, controls, and detached portal mode.</td>
+        </tr>
+        <tr>
+          <td><code>version_guard.test.ts</code></td>
+          <td><span class="badge-success">4 / 4 Passing</span></td>
+          <td>Version 2.7.14, Build 129, Architecture v2.9.7 synchronization.</td>
+        </tr>
+        <tr>
+          <td><strong>Full Regression Suite</strong></td>
+          <td><span class="badge-success">642 / 642 Passing</span></td>
+          <td>111 test files passing with 100% green status and 0 regressions.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Production Build Verification</h2>
+    <ul>
+      <li><strong>Next.js Compiler:</strong> Next.js 15.5.27 (SWC / Turbopack Production Build)</li>
+      <li><strong>Build Result:</strong> <code>✓ Compiled successfully in 6.5s</code></li>
+      <li><strong>Type Validation:</strong> <code>✓ Linting and checking validity of types</code></li>
+      <li><strong>Static Generation:</strong> <code>✓ Generating static pages (16/16)</code></li>
+    </ul>
+  </div>
+
+</body>
+</html>

@@ -2,6 +2,7 @@ import './globals.css';
 import { ReactNode } from 'react';
 import { AuthProvider } from '../contexts/AuthContext';
 import { PortfolioProvider } from '../contexts/PortfolioContext';
+import { TaxProvider } from '../contexts/TaxContext';
 
 export const metadata = {
   title: 'BunBau (資本寶)',
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <AuthProvider>
           <PortfolioProvider>
-            {children}
+            <TaxProvider>
+              {children}
+            </TaxProvider>
           </PortfolioProvider>
         </AuthProvider>
       </body>

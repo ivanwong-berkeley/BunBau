@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.6 Implementation Plan — Universal Ingestion & Tax Expert Panel</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    header {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin: 0 0 16px 0;
+      font-weight: 500;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: #f1f5f9;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .meta-item strong {
+      color: #475569;
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-item span {
+      font-weight: 600;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-mint { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-blue { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-violet { background: #ede9fe; color: #5b21b6; border: 1px solid #ddd6fe; }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 32px 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 24px 0 12px 0;
+    }
+
+    p, li {
+      font-size: 14px;
+      color: #334155;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .defect-box {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: 14px;
+      padding: 16px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #9f1239;
+    }
+
+    .defect-box h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #881337;
+    }
+
+    .mermaid {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    @media print {
+      body { background: white; }
+      .toolbar { display: none; }
+      .container { border: none; box-shadow: none; margin: 0; padding: 0; max-width: 100%; }
+      .card, .defect-box { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+      <span style="color: #10b981;">BunBau (資本寶)</span>
+      <span style="color: #64748b;">•</span>
+      <span>Milestone v6.6 Implementation Plan</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      🖨️ Print / Save to PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>BunBau (資本寶) — Milestone v6.6 Implementation Plan</h1>
+      <p class="subtitle">Universal Multi-Modal Ingestion Panel (PDF, CSV &amp; Vision) &amp; Context-Aware Tax Expert Ingestion Architecture</p>
+      
+      <div class="meta-grid">
+        <div class="meta-item">
+          <strong>Target Milestone</strong>
+          <span>Milestone v6.6</span>
+        </div>
+        <div class="meta-item">
+          <strong>App Version</strong>
+          <span class="badge-pill badge-mint">2.7.8</span>
+        </div>
+        <div class="meta-item">
+          <strong>Build Number</strong>
+          <span class="badge-pill badge-blue">Build 123</span>
+        </div>
+        <div class="meta-item">
+          <strong>Architecture</strong>
+          <span class="badge-pill badge-violet">v2.9.1 Universal Multi-Modal Ingestion</span>
+        </div>
+      </div>
+    </header>
+
+    <h2>1. User Feedback &amp; Defect Analysis</h2>
+    
+    <div class="defect-box">
+      <h4>Defect 1: Upload Panel Mismatch on Tax Expert (Screenshot 1)</h4>
+      <p>
+        The universal modal is titled "Portfolio Ingestion" and only contains two tabs: <code>[Brokerage CSV Export]</code> and <code>[Screenshots (Vision)]</code>. Dragging in tax return PDFs placed them into the CSV queue, labeled them as <code>CSV</code>, and showed "Parsed Holdings (0 positions)". There is no dedicated PDF tab and no context-awareness.
+      </p>
+    </div>
+
+    <div class="defect-box">
+      <h4>Defect 2: Tax Ingestion Modal Rigidly Restricted to PDFs Only (Screenshot 2)</h4>
+      <p>
+        The modal opened from the tax banner only accepted <code>.pdf</code> files and rejected CSV or screenshot files. Users with 1099 CSVs, Schedule D trading exports, or scanned W-2/1040 screenshots could not ingest them.
+      </p>
+    </div>
+
+    <h2>2. Architectural Blueprint</h2>
+
+    <div class="mermaid">
+    flowchart TD
+      subgraph TriggerContext ["Context Detection & Smart Ingestion Routing"]
+        UserTopBar["Topbar [Upload Data] Button"] --> RouteCheck{"Active Tab Context?"}
+        TaxBanner["Tax Demo / Live Banner [Upload]"] --> TaxDirect["context: 'tax'"]
+        RouteCheck -- "activeTab === 'tax'" --> TaxDirect
+        RouteCheck -- "Other tabs" --> PortDirect["context: 'portfolio'"]
+      end
+
+      subgraph UnifiedModal ["UploadValidationModal (Universal Ingestion Hub)"]
+        TaxDirect --> SetTabPDF["defaultTab: 'pdf' | Title: 'Tax & Portfolio Ingestion'"]
+        PortDirect --> SetTabCSV["defaultTab: 'csv' | Title: 'Portfolio Ingestion'"]
+        
+        SetTabPDF --> TabRibbon["Top Ribbon: [📄 PDF Upload] [📊 CSV Export] [📸 Vision Screenshots]"]
+        SetTabCSV --> TabRibbon
+      end
+
+      subgraph UniversalTaxModal ["TaxMultiUploaderModal (Universal Tax Uploader)"]
+        TaxBannerClick["Tax Expert Workspace / Banner"] --> UniversalModal["TaxMultiUploaderModal (Multi-Format)"]
+        UniversalModal --> UniTabs["Tabs: [📄 Tax Return PDFs] [📊 Tax CSVs] [📸 Tax Scans]"]
+        UniTabs --> UniversalDrop["Universal Drag & Drop (Accepts PDF, CSV, Images)"]
+        UniversalDrop --> TagQueue["Format Badges: [PDF] (purple) | [CSV] (blue) | [IMG] (amber)"]
+      end
+    </div>
+
+    <h2>3. Detailed Implementation Steps</h2>
+
+    <div class="card">
+      <h3>Step 1: Mandatory Version Tracking &amp; Version Guard</h3>
+      <ul>
+        <li>Update <code>package.json</code> &rarr; <code>"2.7.8"</code>.</li>
+        <li>Update <code>AboutModal.tsx</code> &rarr; <code>2.7.8</code> &amp; <code>Build 123</code> &amp; <code>v2.9.1 Universal Multi-Modal Tax &amp; Portfolio Ingestion Architecture (PDF, CSV, Vision)</code>.</li>
+        <li>Update <code>page.tsx</code> &rarr; <code>v2.7.8 (Build 123)</code>.</li>
+        <li>Update version unit tests to enforce new version manifest.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Step 2: Smart Branching &amp; Dedicated PDF Tab in <code>UploadValidationModal.tsx</code></h3>
+      <ul>
+        <li><strong>Add 3 Autonomous Tabs:</strong> <code>[📄 PDF Upload (Tax Returns)]</code>, <code>[📊 Brokerage CSV Export]</code>, and <code>[📸 Screenshots (Vision)]</code>.</li>
+        <li><strong>Context-Aware Initialization:</strong> When opened from the Tax Expert page (<code>context="tax"</code>), defaults to the <strong>PDF Upload</strong> tab and titles the modal <strong>"Tax &amp; Portfolio Ingestion"</strong>.</li>
+        <li><strong>Strict Per-Tab File Type Enforcement:</strong>
+          <ul>
+            <li><strong>CSV Tab:</strong> Rejects <code>.pdf</code> files with friendly guidance to switch to the PDF tab. Strictly accepts <code>.csv</code>.</li>
+            <li><strong>PDF Tab:</strong> Strictly accepts <code>.pdf</code> tax returns.</li>
+            <li><strong>Vision Tab:</strong> Strictly accepts images (<code>.png, .jpg, .webp</code>).</li>
+          </ul>
+        </li>
+        <li><strong>Tax Inspection Right Panel:</strong> In PDF mode, replaces "Parsed Holdings (0 positions)" with a dedicated <strong>Parsed Tax Filings Overview</strong> (Tax Year, Inferred Status, Detected Schedules, Total Pages).</li>
+        <li><strong>Verification Action:</strong> "Verify &amp; Ingest Tax Filings" calls <code>importTaxReturnsBatch</code> from <code>TaxContext</code>.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Step 3: Universal Multi-Modal Ingestion in <code>TaxMultiUploaderModal.tsx</code></h3>
+      <ul>
+        <li><strong>Accept All 3 File Types:</strong> Accepts PDFs (Form 1040/540/Schedules), CSVs (1099/Schedule D exports), and Scans/Images (W-2 scans, 1040 mobile photos).</li>
+        <li><strong>Format Tabs:</strong> <code>[📄 Tax Return PDFs]</code>, <code>[📊 Tax CSV Exports]</code>, <code>[📸 Tax Scans &amp; Screenshots]</code>.</li>
+        <li><strong>Multi-Format Format Badges:</strong> Staged files render clear badges: <code>[PDF]</code> (purple), <code>[CSV]</code> (blue), <code>[IMG]</code> (amber).</li>
+        <li><strong>Multi-Format Staged Summary:</strong> Displays summary e.g. <em>"4 PDFs, 1 CSV, 1 Scan Staged"</em>.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Step 4: Topbar Integration in <code>page.tsx</code></h3>
+      <ul>
+        <li>Topbar "Upload Data" button passes <code>context="tax"</code> and <code>initialTab="pdf"</code> when the user is on the Tax Expert tab (<code>activeTab === 'tax'</code>).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Step 5: Full Regression Testing &amp; Production Build</h3>
+      <ul>
+        <li>Automated unit test: <code>tests/unit/tax/universal_upload_modal.test.ts</code> verifying context-aware defaults, file type enforcement, and multi-format tags.</li>
+        <li>Verify <code>npm test</code> across all 98+ test files.</li>
+        <li>Verify <code>npm run build</code> compiles 16/16 routes cleanly.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+</body>
+</html>

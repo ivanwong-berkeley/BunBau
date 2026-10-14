@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v7.3 Release Report — Canonical 52-Page Vault Multi-Schedule Dispatcher & Zero-Bleed Schedule B/E Isolation</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--primary-violet);
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-mint { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-violet { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .badge-amber { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+
+    .quote-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary-violet);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin-bottom: 32px;
+      font-style: italic;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0 32px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: #1e293b;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      font-size: 14px;
+      color: #334155;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    pre code {
+      display: block;
+      padding: 14px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #f8fafc;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      body { background: white; }
+      .container {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; color: #0f172a;">BunBau System Architecture & Release Management</div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau Release Report — Milestone v7.3</h1>
+    <div class="subtitle">Canonical 52-Page Vault Multi-Schedule Dispatcher &amp; Zero-Bleed Schedule B/E Isolation Architecture</div>
+
+    <div class="badge-bar">
+      <span class="badge badge-mint">Version 2.7.15</span>
+      <span class="badge badge-violet">Build 130</span>
+      <span class="badge badge-amber">100% Tests Passing (649/649)</span>
+    </div>
+
+    <div class="quote-box">
+      <strong>Mandatory Version Tracking Enforcement:</strong><br>
+      <em>"You also need to update the application version/build/architecture version for every iteration build."</em>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>Specification</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Milestone</strong></td>
+            <td><code>v7.3</code></td>
+          </tr>
+          <tr>
+            <td><strong>Application Version</strong></td>
+            <td><code>2.7.15</code></td>
+          </tr>
+          <tr>
+            <td><strong>Build Number</strong></td>
+            <td><code>Build 130</code></td>
+          </tr>
+          <tr>
+            <td><strong>Architecture Version</strong></td>
+            <td><code>v2.9.8 Canonical 52-Page Vault Multi-Schedule Dispatcher &amp; Zero-Bleed Schedule B/E Isolation Architecture</code></td>
+          </tr>
+          <tr>
+            <td><strong>Verification State</strong></td>
+            <td>100% Passing (649/649 Vitest Unit Tests across 113 Test Suites, 0 Build Errors)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      Milestone v7.3 delivers complete statutory schedule isolation across the entire BunBau Tax Platform. It definitively resolves the critical defect where the 52-Page Document Vault and Pre-Upload Preview displayed <code>"SCHEDULE B - INTEREST &amp; ORDINARY DIVIDENDS"</code> as the sheet title on Page 6, but erroneously rendered Schedule E rental real estate expenses beneath it ($29,000 gross rents, $16,000 mortgage interest, $17,000 property taxes, $25,000 depreciation, -$44,500 net loss).
+    </p>
+    <p>
+      Through a deterministic, canonical 52-page schedule dispatcher architecture (<code>getScheduleTypeForPage</code>), Schedule B now exclusively displays authentic 1099-INT and 1099-DIV receipts (Part I Interest from Citibank &amp; Fidelity, Part II Ordinary Dividends from Fidelity, Vanguard &amp; Webull, and Part III Foreign Accounts) with <strong>zero Schedule E rental bleed</strong>. Simultaneously, Schedule E Part I rental real estate is dispatched to Page 12, featuring 100% dynamic property extraction from uploaded tax returns (<code>3343 Los Prados, San Mateo, CA 94403</code>) with zero mock or hardcoded residue.
+    </p>
+
+    <h2>2. Root Cause Analysis &amp; Architecture Remediation</h2>
+    <h3>2.1 Root Cause of Schedule B / Schedule E Bleed</h3>
+    <p>
+      In previous iterations of <code>BunBauDocumentViewer.tsx</code>, the document stream evaluated page indices using a naive condition: <code>else if (pageNum &lt;= 16)</code> which rendered the Schedule E table for <em>all pages between 3 and 16</em>. Because Schedule B is on Page 6, it fell into this condition, causing the rental property table to render under the Schedule B header.
+    </p>
+
+    <h3>2.2 The Canonical 52-Page Bookmark Standard</h3>
+    <pre><code>export const CANONICAL_52_PAGE_BOOKMARKS: Record&lt;string, number&gt; = {
+  form_1040_p1: 1,      // Form 1040 Page 1 (Wages, Interest, Dividends, AGI)
+  form_1040_p2: 2,      // Form 1040 Page 2 (Deductions, Taxable Income, Federal Tax, Overpayment)
+  schedule_1: 3,        // Schedule 1 (Additional Income &amp; Adjustments)
+  schedule_2: 4,        // Schedule 2 (Additional Taxes: NIIT, SE)
+  schedule_3: 5,        // Schedule 3 (Additional Credits &amp; Payments)
+  schedule_b: 6,        // Schedule B (Interest &amp; Ordinary Dividends)
+  schedule_d: 8,        // Schedule D (Capital Gains &amp; Losses, Loss Carryover)
+  schedule_a: 10,       // Schedule A (Itemized Deductions, SALT Limit)
+  schedule_e_p1: 12,    // Schedule E Part I (Rental Real Estate &amp; Royalties - 3343 Los Prados)
+  schedule_e_p2: 16,    // Schedule E Part II (Partnerships &amp; S-Corporations)
+  form_8949: 18,        // Form 8949 (Sales &amp; Dispositions of Capital Assets)
+  form_8582: 20,        // Form 8582 (Passive Activity Loss Limitations)
+  form_8960: 30,        // Form 8960 (Net Investment Income Tax)
+  ca_form_540: 32,      // California Form 540 (Resident Return, Line 48 Tax Liability)
+  ca_schedule_ca: 42,   // California Schedule CA (540 Adjustments)
+  ca_schedule_d: 48,    // California Schedule D (CA Capital Gain/Loss)
+};</code></pre>
+
+    <h2>3. Downstream Multi-Year Audit Deep-Linking Matrix</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Line Item Key</th>
+            <th>Tax Description</th>
+            <th>Statutory Form / Schedule</th>
+            <th>Canonical Page</th>
+            <th>Highlight Line Tag</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>w2_wages</code></td><td>W-2 Wages &amp; Salaries</td><td>Form 1040 (p.1)</td><td><strong>Page 1</strong></td><td>Line 1z</td></tr>
+          <tr><td><code>taxable_interest</code></td><td>Taxable Interest Income</td><td>Schedule B (p.6)</td><td><strong>Page 6</strong></td><td>Line 4 Total</td></tr>
+          <tr><td><code>ordinary_dividends</code></td><td>Ordinary Dividends</td><td>Schedule B (p.6)</td><td><strong>Page 6</strong></td><td>Line 6 Total</td></tr>
+          <tr><td><code>qualified_dividends</code></td><td>Qualified Dividends</td><td>Form 1040 (p.1)</td><td><strong>Page 1</strong></td><td>Line 3a</td></tr>
+          <tr><td><code>capital_gains</code></td><td>Capital Gain or (Loss)</td><td>Schedule D (p.8)</td><td><strong>Page 8</strong></td><td>Line 7 / Line 16</td></tr>
+          <tr><td><code>rental_income</code></td><td>Rental Real Estate Income/Loss</td><td>Schedule E (p.12)</td><td><strong>Page 12</strong></td><td>Line 21/26 Net Loss</td></tr>
+          <tr><td><code>agi</code></td><td>Adjusted Gross Income (AGI)</td><td>Form 1040 (p.1)</td><td><strong>Page 1</strong></td><td>Line 11</td></tr>
+          <tr><td><code>deductions_claimed</code></td><td>Total Deductions Claimed</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Line 12</td></tr>
+          <tr><td><code>taxable_income</code></td><td>Taxable Income</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Line 15</td></tr>
+          <tr><td><code>federal_tax</code></td><td>Total Federal Tax Liability</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Line 24</td></tr>
+          <tr><td><code>california_tax</code></td><td>California State Tax Liability</td><td>CA Form 540 (p.32)</td><td><strong>Page 32</strong></td><td>Line 48</td></tr>
+          <tr><td><code>total_combined_tax</code></td><td>Combined Federal + CA Tax</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Combined Total</td></tr>
+          <tr><td><code>federal_withholding</code></td><td>Federal Income Tax Withheld</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Line 25d</td></tr>
+          <tr><td><code>estimated_payments</code></td><td>Estimated Tax Payments Applied</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Line 26</td></tr>
+          <tr><td><code>overpayment_applied</code></td><td>Overpayment to Next Year</td><td>Form 1040 (p.2)</td><td><strong>Page 2</strong></td><td>Line 36</td></tr>
+          <tr><td><code>capital_loss_carryover</code></td><td>Capital Loss Carryforward</td><td>Schedule D (p.8)</td><td><strong>Page 8</strong></td><td>Line 21 Reserve</td></tr>
+          <tr><td><code>passive_loss_carryover</code></td><td>Suspended Passive Loss Carryforward</td><td>Form 8582 (p.20)</td><td><strong>Page 20</strong></td><td>Line 16 Reserve</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>4. Test Verification &amp; Code Quality</h2>
+    <div class="card">
+      <h3 style="margin-top:0;">Vitest Automated Test Suite</h3>
+      <ul>
+        <li><strong>Total Test Suites:</strong> 113 suites passed (100%)</li>
+        <li><strong>Total Unit Tests:</strong> 649 tests passed (100%)</li>
+        <li><strong>Zero Regressions:</strong> All tests passing across portfolio ingestion, multi-vendor vault, tax calculation engine, and document viewer.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">Next.js Production Build</h3>
+      <ul>
+        <li><strong>Build Command:</strong> <code>npm run build</code></li>
+        <li><strong>Result:</strong> Exit code 0, 0 linter errors, 0 type errors.</li>
+        <li><strong>Compiled Routes:</strong> 16/16 routes successfully compiled and optimized.</li>
+      </ul>
+    </div>
+
+  </div>
+
+</body>
+</html>

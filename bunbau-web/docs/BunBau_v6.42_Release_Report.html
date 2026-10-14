@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.42 Release Report — Tax Expert Dynamic Demo/Live Mode</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 32px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h2 {
+      font-size: 19px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 0;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      background: #f8fafc;
+      padding: 18px 24px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 32px;
+    }
+
+    .meta-item {
+      font-size: 13px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .meta-value {
+      color: #0f172a;
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-demo {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .badge-live {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .feature-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .feature-desc {
+      color: #475569;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    @media print {
+      .toolbar { display: none !important; }
+      body { background: white; }
+      .container { border: none; box-shadow: none; padding: 0; margin: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; color: #0f172a;">
+      BunBau (資本寶) Release Report — v6.42
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-4 0h-4a2 2 0 00-2 2v4h8v-4a2 2 0 00-2-2z"></path></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>🏛️ BunBau (資本寶) — Milestone v6.42 Release Report</h1>
+    <h2>Tax Expert: Dynamic Demo/Live Mode, Fictitious Mock Seed & Runtime Ingestion Pipeline</h2>
+
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">Release Date:</span>
+        <span class="meta-value">October 12, 2026</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Milestone:</span>
+        <span class="meta-value">v6.42</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Application Version:</span>
+        <span class="meta-value">2.7.6 (Build 121)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Architecture Version:</span>
+        <span class="meta-value">v2.8.1 Tax Expert Dynamic Demo/Live Mode & Isolated Ingestion Architecture</span>
+      </div>
+      <div class="meta-item" style="grid-column: span 2;">
+        <span class="meta-label">Mandate Compliance:</span>
+        <span class="meta-value" style="font-size: 12px; color: #059669;">"You also need to update the application version/build/architecture version for every iteration build." (Verified)</span>
+      </div>
+    </div>
+
+    <h3>Executive Summary</h3>
+    <p>
+      Milestone <strong>v6.42</strong> delivers the complete decoupling of runtime uploaded tax returns from the build. In accordance with BunBau's established portfolio design architecture, when no tax returns are uploaded at runtime, <strong>Tax Demo Mode</strong> is activated with a prominent blue banner and populated with synthetic, high-fidelity mock demo returns (<strong>Alex &amp; Jordan Taylor</strong>). When real tax returns are uploaded at runtime, the application instantly transitions to <strong>Live Tax Mode</strong> with an emerald banner and persists returns to Firestore. All personal taxpayer data has been completely purged from the repository and build.
+    </p>
+
+    <h3>Key Technical Accomplishments</h3>
+
+    <div class="feature-card">
+      <div class="feature-title">1. Complete Personal Taxpayer Data Purge from the Build</div>
+      <p class="feature-desc">All personal taxpayer identifiers (names, SSNs, residential and rental addresses, employers, CPA firms, and exact return amounts) were completely purged from source code, tests, and API routes. Verified with automated regex scanners across the repository.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">2. Synthetic Mock Demo Dataset (Alex &amp; Jordan Taylor)</div>
+      <p class="feature-desc">Engineered synthetic, mathematically consistent multi-year tax filings for Alex &amp; Jordan Taylor (2024 &amp; 2025 Form 1040 and CA 540). Preserves 100% of the forward-looking CFA/CPA planning intelligence: Social Security earnings clawback at 62, Medicare coordination at 65, IRMAA $206,000 threshold, and SECURE 2.0 RMD age 75.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">3. Dynamic TaxContext &amp; Dual-Layer Storage Engine</div>
+      <p class="feature-desc">Created <code>src/lib/tax/taxStore.ts</code> and <code>src/contexts/TaxContext.tsx</code>. Supports dual-layer persistence under Firestore <code>users/{uid}/taxReturns/{year}</code> and localStorage cache <code>bunbau_tax_returns_{uid}</code>, with dynamic detection of demo mode vs live mode.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">4. Synchronized Topbar Badges &amp; Notice Banners</div>
+      <p class="feature-desc">When on the Tax Expert tab, the topbar dynamically displays <span class="badge badge-demo">✨ Tax Demo Mode</span> or <span class="badge badge-live">✓ Live Tax Mode (X Returns)</span>. TaxExpertView renders a blue alert banner with an [Upload Tax Return] action in Demo Mode, and an emerald verified banner with a [Reset to Demo] action in Live Mode.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-title">5. Dynamic Fiduciary Calculation &amp; RAG Engines</div>
+      <p class="feature-desc">Completely dynamized <code>lifecyclePlanningEngine.ts</code>, <code>taxComparisonEngine.ts</code>, and <code>TaxPortfolioChunker.ts</code> to operate without hardcoded names or figures, ensuring flawless behavior in both Demo Mode and user Live Mode.</p>
+    </div>
+
+    <h3>Test Verification &amp; Build Results</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Verification Target</th>
+          <th>Test Suite File</th>
+          <th>Pass Count</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Version &amp; Architecture Guard</strong></td>
+          <td><code>tests/unit/tax/version_guard.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge badge-live">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dynamic Demo/Live Mode</strong></td>
+          <td><code>tests/unit/tax/tax_demo_mode.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge badge-live">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Fiduciary Lifecycle Planning</strong></td>
+          <td><code>tests/unit/tax/lifecycle_planning.test.ts</code></td>
+          <td>5 / 5</td>
+          <td><span class="badge badge-live">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Multi-Year Tax Calculations</strong></td>
+          <td><code>tests/unit/tax/tax_calculations.test.ts</code></td>
+          <td>6 / 6</td>
+          <td><span class="badge badge-live">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>RAG Semantic Retrieval</strong></td>
+          <td><code>tests/unit/tax/tax_rag_retrieval.test.ts</code></td>
+          <td>4 / 4</td>
+          <td><span class="badge badge-live">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Strategist &amp; Tax RAG Coexistence</strong></td>
+          <td><code>tests/unit/tax/strategist_rag_coexistence.test.ts</code></td>
+          <td>3 / 3</td>
+          <td><span class="badge badge-live">Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Full Unit Test Regression Suite</strong></td>
+          <td>93 test files across BunBau</td>
+          <td><strong>524 / 524</strong></td>
+          <td><span class="badge badge-live">100% Passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Next.js 15 Production Build</strong></td>
+          <td><code>npm run build</code></td>
+          <td>16 / 16 Routes</td>
+          <td><span class="badge badge-live">0 Errors</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</body>
+</html>

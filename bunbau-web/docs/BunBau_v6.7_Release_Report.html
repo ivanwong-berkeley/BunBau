@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.7 Release Report — Granular Multi-Tenant Tax Data Partitioning, Line-Item Inspector & Contextual Danger Zone Architecture</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    .meta-box {
+      background: #f1f5f9;
+      border-left: 4px solid var(--primary-mint);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .meta-item strong {
+      color: #334155;
+    }
+
+    .meta-full {
+      grid-column: span 2;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ecfdf5;
+      color: #047857;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #a7f3d0;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-top: 36px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      color: #334155;
+      font-size: 14px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .strategy-card {
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      font-size: 13px;
+    }
+
+    .strategy-emerald {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: #065f46;
+    }
+
+    .strategy-purple {
+      background: #f5f3ff;
+      border-color: #ddd6fe;
+      color: #5b21b6;
+    }
+
+    .strategy-amber {
+      background: #fffbeb;
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    .strategy-blue {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .code-block {
+      background: #0b1021;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.5;
+    }
+
+    .highlight-box {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .toolbar {
+        display: none;
+      }
+      .container {
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+      <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981;"></span>
+      BunBau v6.7 Release Report
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v6.7 Release Report</h1>
+    <div class="subtitle">Granular Multi-Tenant Tax Data Partitioning, Line-Item Inspector & Contextual Danger Zone Architecture</div>
+
+    <div class="meta-box">
+      <div class="meta-item"><strong>Milestone:</strong> v6.7</div>
+      <div class="meta-item"><strong>Application Version:</strong> 2.7.9</div>
+      <div class="meta-item"><strong>Build Number:</strong> Build 124</div>
+      <div class="meta-item"><strong>Architecture Version:</strong> v2.9.2 Granular Multi-Tenant Tax Data Partitioning, Line-Item Inspector & Contextual Danger Zone Architecture</div>
+      <div class="meta-item"><strong>Test Pass Rate:</strong> <span class="status-badge">100 / 100 Suites (569 / 569 Tests Green)</span></div>
+      <div class="meta-item"><strong>Next.js 15 Build:</strong> <span class="status-badge">16 / 16 Static & Dynamic Routes OK (8.4s)</span></div>
+      <div class="meta-item meta-full"><strong>Mandatory Version Tracking:</strong> <em>"You also need to update the application version/build/architecture version for every iteration build."</em></div>
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      Milestone <strong>v6.7</strong> resolves critical architectural, usability, and data partition concerns raised during production audits of the Tax Expert workspace. This release delivers a synchronized 4-card strategy system matching top portfolio metrics, an interactive line-item card inspector with continuous multi-year progression strips, rigorous multi-tenant data partitioning eliminating synthetic demo identities from live filings, and contextual safety scoping for deletion operations across portfolio and tax domains.
+    </p>
+
+    <h2>2. Key Remediations & Architectural Enhancements</h2>
+
+    <h3>2.1 Symmetrical 4-Card Tax Strategy System & Action Targeting</h3>
+    <p>
+      Prior to v6.7, the top metrics displayed <em>Capital Loss Shield ($3,000)</em>, <em>Suspended Passive Rental Loss ($44,500)</em>, and <em>Marginal Drag (44.3%)</em>, but only 2 recommendations were provided below. The guidance for Suspended Passive Loss was entirely missing.
+    </p>
+    <div class="card-grid">
+      <div class="strategy-card strategy-emerald">
+        <strong>1. Options Neutralization (Emerald)</strong><br>
+        Cash-settled options collars and box spreads to offset short-term gains against ordinary brackets.
+      </div>
+      <div class="strategy-card strategy-purple">
+        <strong>2. Suspended Passive Loss (Purple)</strong><br>
+        Form 8582 carryover monetization via Passive Income Generators (PIGs), IRC §469(g) qualifying complete dispositions, and MAGI phase-out calibration.
+      </div>
+      <div class="strategy-card strategy-amber">
+        <strong>3. Muni Bond vs CD Drag (Amber)</strong><br>
+        Double-exempt California municipal bond yield arbitrage (+3.18% spread) avoiding Medicare IRMAA cliffs.
+      </div>
+      <div class="strategy-card strategy-blue">
+        <strong>4. Safe Harbor Prepayment (Blue)</strong><br>
+        110% prior-year liability safe harbor compliance and W-4 Line 4(c) catch-up withholding under IRC §6513(b).
+      </div>
+    </div>
+    <p>
+      Clicking <strong>"Take Action"</strong> in <code>TaxAnomalyBanner</code> now dispatches target card IDs, switches subtabs, auto-scrolls into view via <code>scrollIntoView</code>, and pulses a target action highlight badge.
+    </p>
+
+    <h3>2.2 Interactive Line Item Card Inspector</h3>
+    <p>
+      In <code>LongitudinalComparisonCard.tsx</code>, users can now click any row or the sticky <code>[Inspect]</code> button to open the <code>LineItemCardModal</code>. The card features:
+    </p>
+    <ul>
+      <li><strong>IRS Form & Line Reference:</strong> Form 1040 Line 1z, Schedule E Line 26 / Form 8582, Schedule D Line 21, CA 540 Line 48.</li>
+      <li><strong>9-Year Progression Strip:</strong> Chronological historical values with compound annual growth rate (CAGR).</li>
+      <li><strong>Tax Statutory Impact:</strong> Clear explanations of phase-outs, deductions, and rate brackets.</li>
+      <li><strong>1-Click Deep Links:</strong> Jump directly to the exact page and line in <code>BunBauDocumentViewer</code> without compromising the virtualized continuous scroll viewer (*"Don't mess it up"*).</li>
+    </ul>
+
+    <h3>2.3 Multi-Tenant Partitioning & Identity Isolation</h3>
+    <p>
+      Real tax returns uploaded by users now cleanly replace synthetic demo names with their authenticated identity (<code>user.displayName</code> or filename metadata parsed by <code>extractTaxpayerNameFromFilename</code>). Synthetic identities (*"Alex & Jordan Taylor"*) are strictly quarantined to Demo Mode.
+    </p>
+
+    <h3>2.4 Contextual Danger Zone & Upload Modal Delete Safety</h3>
+    <p>
+      The trash icon in <code>UploadValidationModal.tsx</code> is now context-aware:
+    </p>
+    <ul>
+      <li>In tax context (<code>context === 'tax' || activeTab === 'pdf'</code>), the trash icon triggers <code>TaxDeleteModal</code> with typed phrase confirmation (<em>"Delete all tax history"</em> or <em>"Delete &lt;Year&gt; tax history"</em>).</li>
+      <li>Brokerage portfolio deletion is strictly shielded, preventing any accidental wiping of investment accounts.</li>
+    </ul>
+
+    <h2>3. Quality Assurance & Test Verification</h2>
+    <div class="code-block">
+$ npm test
+✓ 100 passed (100 test files)
+✓ 569 passed (569 tests)
+Duration: 4.47s
+
+$ npm run build
+✓ Compiled successfully in 8.4s
+✓ Linting and checking validity of types
+✓ Generating static pages (16/16)
+Route (app)                                 Size  First Load JS
+┌ ○ /                                     409 kB         772 kB
+├ ○ /_not-found                            155 B         103 kB
+├ ƒ /api/v1/tax/ingest/confirm             155 B         103 kB
+└ ○ /strategy/report                       776 B         227 kB
+    </div>
+
+    <div class="footer">
+      © 2026 BunBau AI. Personal Portfolio Intelligence. Certified by Antigravity Engineering.
+    </div>
+  </div>
+
+</body>
+</html>

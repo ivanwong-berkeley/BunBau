@@ -55,6 +55,9 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     }
     setFetching(true);
     try {
+      if (firestoreStore.purgeLegacyPortfolio) {
+        firestoreStore.purgeLegacyPortfolio(user.uid).catch(() => {});
+      }
       const accts = await firestoreStore.listAccounts(user.uid);
       const healedAccts = healAccounts(accts);
       setAccounts(healedAccts);

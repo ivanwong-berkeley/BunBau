@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { PortfolioStore } from './commit';
@@ -60,5 +60,14 @@ export const firestoreStore: PortfolioStore = {
     const batch = writeBatch(db);
     importIds.forEach((id) => batch.delete(doc(db, 'users', uid, 'imports', id)));
     await batch.commit();
+  },
+
+  async purgeLegacyPortfolio(uid) {
+    if (!uid) return;
+    try {
+      await deleteDoc(doc(db, 'portfolios', uid));
+    } catch {
+      // Non-blocking if already removed or permission restricted
+    }
   },
 };

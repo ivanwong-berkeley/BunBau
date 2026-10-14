@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BunBau v6.9 Release Report — Advanced PDF Player, Spousal Entity Isolation & Staged Verification Ingestion Architecture</title>
+  <style>
+    :root {
+      --primary-mint: #10b981;
+      --primary-blue: #3b82f6;
+      --primary-violet: #8b5cf6;
+      --primary-amber: #f59e0b;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --bg-page: #f8fafc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      margin: 0;
+      padding: 0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .btn-print {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-print:hover {
+      background: #059669;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin: 24px 0;
+    }
+
+    .metadata-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metadata-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .metadata-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    .badge-pass {
+      display: inline-flex;
+      align-items: center;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .callout {
+      background: #f0fdf4;
+      border-left: 4px solid var(--primary-mint);
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+
+    .callout p {
+      margin: 0;
+      color: #166534;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    @media print {
+      .toolbar { display: none; }
+      body { background: white; }
+      .container { border: none; box-shadow: none; padding: 0; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div style="font-weight: 700; font-size: 14px; color: #0f172a;">
+      BunBau Engineering Release Report — <span style="color: #10b981;">Milestone v6.9</span>
+    </div>
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+      Print / Save as PDF
+    </button>
+  </div>
+
+  <div class="container">
+    <h1>BunBau v6.9 Release Report</h1>
+    <div style="color: var(--text-muted); font-size: 16px; margin-bottom: 24px;">
+      Advanced PDF Player, Spousal Entity Isolation & Staged Verification Ingestion Architecture
+    </div>
+
+    <div class="callout">
+      <p><em>"You also need to update the application version/build/architecture version for every iteration build."</em></p>
+    </div>
+
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <span class="metadata-label">Milestone Designation</span>
+        <span class="metadata-value">v6.9</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Application Version</span>
+        <span class="metadata-value">2.7.11 (Build 126)</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Architecture Version</span>
+        <span class="metadata-value">v2.9.4 Advanced PDF Player, Spousal Isolation & Staged Verification</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">Unit Test Verification</span>
+        <span class="metadata-value"><span class="badge-pass">✓ 100/100 Tests (17 Suites Green)</span></span>
+      </div>
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>
+      Milestone <strong>v6.9</strong> delivers a comprehensive UX and architectural upgrade across BunBau's Tax Return Ingestion and Multi-Year Audit systems. Addressing detailed production feedback, v6.9 introduces:
+    </p>
+    <ul>
+      <li><strong>Interactive Green Monospace Terminal Stream & Staged Verification Workflow:</strong> A two-phase ingestion pipeline featuring pre-upload PDF previewing, a live green monospace extraction terminal, a parsed filings overview table with granular row and bulk checkboxes, dynamic button state reflecting verified count, and a final confirmation modal before database/storage persistence.</li>
+      <li><strong>Dual-Entity Name Parsing & Spousal Isolation:</strong> Accurate joint return (MFJ) parsing isolating <strong>Harmony</strong> (Primary Filer) and <strong>Ivan</strong> (Spouse). Eradicates generic "Spouse" labels and removes compound "Harmony & Ivan" strings from individual taxpayer cards and lifecycle milestones.</li>
+      <li><strong>Multi-Year Audit Deep Link Precision:</strong> California State Tax bookmarks now pinpoint <strong>California Form 540 Line 48</strong> (Page 37 for 2024 / Page 35 for 2025), replacing erroneous offsets to Schedule E Part II.</li>
+      <li><strong>Advanced PDF Viewer Player UX & Detach Option:</strong> A full-featured PDF workstation featuring a contained 800px viewport with in-viewer scrolling, Table of Contents (TOC) sidebar open by default on the left, keyword search, jump-to-page input (<code>Page X of Y</code>), canonical accessibility zoom controls, Print, Download, Document Info metadata modal, and a dedicated <strong>Detach / Re-attach</strong> workstation capability.</li>
+    </ul>
+
+    <h2>2. Key Deliverables & Remediation</h2>
+
+    <h3>2.1 Staged Ingestion & Green Monospace Terminal Workflow</h3>
+    <p>
+      The tax return ingestion workflow in <code>UploadValidationModal.tsx</code> was completely rebuilt to follow a staged, verifiable pipeline:
+    </p>
+    <ul>
+      <li><strong>Pre-Upload PDF Preview:</strong> Users can inspect staged documents via <code>data-testid="preview-staged-pdf-${idx}"</code> prior to committing.</li>
+      <li><strong>Confirm & Process Upload:</strong> An explicit button triggers document OCR and schedule parsing.</li>
+      <li><strong>Streaming Green Terminal:</strong> Displays extraction progress logs inside <code>bunbau_tax_ingestion_term</code>.</li>
+      <li><strong>Parsed Filings Overview Table:</strong> Only renders once extraction completes. Supports master "Verify All" and individual row verification checkboxes with status badges.</li>
+      <li><strong>Verified Counter & Confirmation Modal:</strong> The ingest button indicates verified files and turns vibrant green, opening <code>tax-ingest-confirm-modal</code> before persistence.</li>
+    </ul>
+
+    <h3>2.2 Dual-Entity Name Parsing & Spousal Isolation</h3>
+    <p>
+      Joint return (MFJ) filers are accurately partitioned into <strong>Harmony</strong> (Primary) and <strong>Ivan</strong> (Spouse):
+    </p>
+    <ul>
+      <li>Ivan is never referred to with a generic "Spouse" header; cards render <code>Spouse (Ivan)</code>.</li>
+      <li>Harmony is never conflated with the combined "Harmony & Ivan" string when rendering individual milestones or healthcare plans.</li>
+    </ul>
+
+    <h3>2.3 Multi-Year Audit Deep Link Precision</h3>
+    <p>
+      California State Tax line item deep links in <code>longitudinalEngine.ts</code> now accurately target California Form 540 Line 48 (Page 37 in 2024, Page 35 in 2025) rather than Schedule E.
+    </p>
+
+    <h3>2.4 Advanced PDF Viewer Player UX with Detach Option</h3>
+    <p>
+      <code>BunBauDocumentViewer.tsx</code> provides a contained 800px viewport, collapsible TOC sidebar open on the left by default, keyword search, jump-to-page pagination, canonical accessibility zoom controls, Print, Download, Info metadata modal, and a dedicated full-screen "Detach" workstation view.
+    </p>
+
+    <h2>3. Unit Test & Build Verification</h2>
+    <pre><code>$ npx vitest run tests/unit/tax/
+✓ tests/unit/tax/ingestion_verification_workflow.test.ts (9 tests)
+✓ tests/unit/tax/universal_upload_modal.test.ts (16 tests)
+✓ tests/unit/tax/pdf_viewer_player.test.ts (9 tests)
+✓ tests/unit/tax/longitudinal_scalability.test.ts (4 tests)
+✓ tests/unit/tax/tax_demo_mode.test.ts (4 tests)
+✓ tests/unit/tax/pdf_multi_year_ingestion.test.ts (4 tests)
+✓ tests/unit/tax/tax_data_partitioning_and_actions.test.ts (12 tests)
+✓ tests/unit/tax/tax_calculations.test.ts (4 tests)
+✓ tests/unit/tax/spousal_entity_isolation.test.ts (6 tests)
+✓ tests/unit/tax/strategist_rag_coexistence.test.ts (3 tests)
+✓ tests/unit/tax/tax_rag_retrieval.test.ts (4 tests)
+✓ tests/unit/tax/contextual_tab_partitioning.test.ts (7 tests)
+✓ tests/unit/tax/version_guard.test.ts (4 tests)
+✓ tests/unit/tax/lifecycle_planning.test.ts (5 tests)
+✓ tests/unit/tax/document_viewer_virtualization.test.ts (3 tests)
+✓ tests/unit/tax/tax_delete_phrase.test.ts (4 tests)
+✓ tests/unit/tax/tax_history_view_integration.test.ts (2 tests)
+
+Test Files: 17 passed (17)
+Tests:      100 passed (100)
+Duration:   986ms</code></pre>
+  </div>
+
+</body>
+</html>

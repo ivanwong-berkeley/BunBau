@@ -105,13 +105,13 @@ describe('v6.3 Unified Accessibility & UX Standard: AccessibilityZoomBar', () =>
 
   it('8. Enforces Version and Architecture Alignment across App Manifests', () => {
     const pkg = JSON.parse(fs.readFileSync(path.resolve(SRC, '../package.json'), 'utf8'));
-    expect(pkg.version).toBe('2.7.4');
+    expect(pkg.version).toBe('2.7.16');
 
     const aboutModal = fs.readFileSync(path.join(SRC, 'components/AboutModal.tsx'), 'utf8');
-    expect(aboutModal).toContain('2.7.4');
-    expect(aboutModal).toContain('v2.7.4 Unified Accessibility & UX Standard');
+    expect(aboutModal).toContain('2.7.16');
+    expect(aboutModal).toContain('v2.9.9 High-Visibility Tactile Sub-Navigation, Two-Tier Advisory Box Accessibility & Multi-Year Audit Report/Chart/Scroll Workstation Architecture');
 
     const page = fs.readFileSync(path.join(SRC, 'app/page.tsx'), 'utf8');
-    expect(page).toContain('v2.7.4 (Build 119)');
+    expect(page).toContain('v2.7.16 (Build 131)');
   });
 });
